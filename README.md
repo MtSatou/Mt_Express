@@ -58,7 +58,7 @@ userRouter.post(
 ### 用户接口 /user
 
 #### 用户信息
-```js
+```ts
 {
   // 唯一id
   id: number;
@@ -74,7 +74,7 @@ userRouter.post(
   avatar?: string | null;
   // 创建/更新时间
   created: Date | string;
-  updated?: Date | string |null;
+  updated?: Date | string | null;
   // 当前 token 与过期时间（ms 时间戳）
   token?: string | null;
   tokenExpiresAt?: number | null;
@@ -92,7 +92,7 @@ userRouter.post(
   - email `string` `邮箱`
   - avatar `string可选` `头像` `后续改为file 直接存文件路径`
 
-- 添加成功用户行为
+- 添加成功行为
   - 存储用户数据
   ```js
   {
@@ -107,4 +107,22 @@ userRouter.post(
       "tokenExpiresAt": null,
       "lastActiveAt": null
     }
+  ```
+
+  
+#### 登录
+- `post` /user/login 
+- `body`
+  - username `string` `用户ID或邮箱`
+  - password `string` `密码`
+
+- 登录成功行为
+  - jsonwebtoken 生成token与存储
+  - 接口返回
+  ```js
+  {
+    "code": 0,
+    "token": "",
+    "expiresAt": 0
+  }
   ```
