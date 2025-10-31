@@ -127,3 +127,26 @@ userRouter.post(
     "user": {} // 用户信息
   }
   ```
+
+
+#### 更新用户 
+仅允许自己更新自己
+- `put` /user/update 
+- `header`
+  - Authorization `Bearer Token`
+- `body`
+  - id `number` `用户id`
+  - username `string可选` `用户名`
+  - password `string可选` `密码`
+  - email `string可选` `邮箱`
+  - avatar `string可选` `头像`
+
+- 添加成功行为
+  - 更新用户数据
+  - 接口返回
+  ```js
+  {
+    "code": 0,
+    "message": "更新成功"
+  }
+  ```

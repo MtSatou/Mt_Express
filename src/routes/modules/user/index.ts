@@ -11,16 +11,6 @@ const validate = jetValidator();
 const userRouter = Router();
 
 /**
- * 获取所有用户。
- * /users/all
- */
-userRouter.get(
-  '/all',
-  auth,
-  UserRoutes.getAll,
-);
-
-/**
  * 添加一名用户。
  * /users/register
  */
@@ -33,12 +23,11 @@ userRouter.post(
 );
 
 /**
- * 更新一名用户。
+ * 更新用户。
  * /users/update
  */
 userRouter.put(
   '/update',
-  validate(['username', User.isUser]),
   auth,
   UserRoutes.update,
 );

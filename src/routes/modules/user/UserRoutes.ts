@@ -27,10 +27,36 @@ async function register(req: IReq<IUser>, res: IRes) {
 /**
  * 更新一名用户。
  */
-async function update(req: IReq<{user: IUser}>, res: IRes) {
-  const { user } = req.body;
-  await UserService.updateOne(user);
-  return res.status(HttpStatusCodes.OK).end();
+async function update(req: IReq<IUser>, res: IRes) {
+  const auth = (res.locals as any).auth as { id?: number } | undefined;
+  if (!auth || !auth.id) {
+    return res.status(HttpStatusCodes.FORBIDDEN).json({ message: '无效的用户' });
+  }
+
+  const user = req.body;
+
+  // 仅允许用户更新自己
+  const userId = user.id ?? auth.id;
+  if (Number(userId) !== Number(auth.id)) {
+    return res.status(HttpStatusCodes.FORBIDDEN).json({ message: '更新失败' });
+  }
+
+  const toUpdate: Partial<IUser> = {
+    id: Number(auth.id),
+    username: (user as any).username ?? undefined,
+    avatar: (user as any).avatar ?? undefined,
+    password: (user as any).password ?? undefined,
+    email: (user as any).email ?? undefined,
+    updated: new Date().toLocaleString(),
+  } as Partial<IUser>;
+
+  // 删除非法键
+  Object.keys(toUpdate).forEach((k) => {
+    if ((toUpdate as any)[k] === undefined) delete (toUpdate as any)[k];
+  });
+
+  await UserService.updateOne(Number(auth.id), toUpdate as Partial<IUser>);
+  return res.status(HttpStatusCodes.OK).json({ message: '更新成功' });
 }
 
 /**
@@ -42,10 +68,22 @@ async function delete_(req: IReq, res: IRes) {
   return res.status(HttpStatusCodes.OK).end();
 }
 
+/**
+ * 登录
+ */
+async function login(req: IReq<{ username: string; password: string }>, res: IRes) {
+  const { username, password } = req.body as { username?: string; password?: string };
+  if (!username || !password) {
+    return res.status(HttpStatusCodes.BAD_REQUEST).json({ message: '缺少字段' });
+  }
+  const { token, expiresAt, user } = await UserService.login(username, password);
+  return res.status(HttpStatusCodes.OK).json({ token, expiresAt, user });
+}
+
 export default {
   getAll,
   update,
   delete: delete_,
   register,
-  login: UserService.login,
+  login,
 } as const;

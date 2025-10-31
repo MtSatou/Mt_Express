@@ -1,8 +1,4 @@
 import { IUser } from '@src/types/user';
-import { IReq, IRes } from '@src/routes/types/express/misc';
-import HttpStatusCodes from '@src/constants/HttpStatusCodes';
-import TokenUtil from '@src/util/token';
-import EnvVars from '@src/constants/EnvVars';
 import orm from './orm';
 
 /**
@@ -86,10 +82,9 @@ async function update(user: IUser): Promise<void> {
         ...dbUser,
         username: (user as any).username ?? dbUser.username,
         email: user.email,
-        // allow updating optional fields if provided
         password: (user as any).password ?? dbUser.password,
         avatar: (user as any).avatar ?? dbUser.avatar,
-        updated: (user as any).updated ?? new Date(),
+        updated: (user as any).updated ?? new Date().toLocaleString(),
       } as IUser;
       return orm.saveDb(db);
     }
@@ -110,41 +105,7 @@ async function delete_(id: number): Promise<void> {
 }
 
 
-/**
- * 登录
- */
-async function login(req: IReq<{username: string; password: string}>, res: IRes) {
-  const { username, password } = req.body as any;
-  if (!username || !password) return res.status(HttpStatusCodes.BAD_REQUEST).json({ message: '请输入用户名或密码' });
 
-  // username 可以是 id 或 email
-  let user = null as any;
-  const asId = Number(username);
-  if (!Number.isNaN(asId) && String(asId) === String(username)) {
-    user = await getById(asId);
-  }
-  if (!user) {
-    // 没有id视为email
-    user = await getOne(String(username));
-  }
-
-  if (!user) {
-    // 认证失败 -> 403
-    return res.status(HttpStatusCodes.FORBIDDEN).json({ message: '用户名或密码错误' });
-  }
-
-  // 简单密码校验（示例项目）。生产请用哈希比较
-  if ((user as any).password !== password) {
-    return res.status(HttpStatusCodes.FORBIDDEN).json({ message: '用户名或密码错误' });
-  }
-
-  // 生成 token，载荷包含 id 和 email。过期时间从 EnvVars.Jwt.Exp（ms）读取
-  const expMs = Number(EnvVars.Jwt.Exp ?? process.env.COOKIE_EXP ?? 0) || (2 * 60 * 60 * 1000);
-  const token = TokenUtil.signToken({ id: user.id, email: user.email }, Math.floor(expMs / 1000));
-  // 计算过期时间（ms）
-  const expiresAt = Date.now() + expMs;
-  return res.status(HttpStatusCodes.OK).json({ token, expiresAt, user });
-}
 
 
 // **** Export default **** //
@@ -158,5 +119,4 @@ export default {
   add,
   update,
   delete: delete_,
-  login
 } as const;
