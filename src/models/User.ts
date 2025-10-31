@@ -10,15 +10,25 @@ const INVALID_CONSTRUCTOR_PARAM = 'nameOrObj arg must a string or an object ' +
 function new_(
   name?: string,
   email?: string,
+  password?: string,
   created?: Date,
   id?: number, // id 放在最后一个参数是因为通常由数据库设置
+  avatar?: string | null,
+  code?: string,
 ): IUser {
   return {
     id: (id ?? -1),
     name: (name ?? ''),
     email: (email ?? ''),
+    password: (password ?? ''),
+    code: code,
+    avatar: (avatar ?? null),
     created: (created ? new Date(created) : new Date()),
-  };
+    updated: null,
+    token: null,
+    tokenExpiresAt: null,
+    lastActiveAt: null,
+  } as IUser;
 }
 
 /**
@@ -29,7 +39,7 @@ function from(param: object): IUser {
     throw new Error(INVALID_CONSTRUCTOR_PARAM);
   }
   const p = param as IUser;
-  return new_(p.name, p.email, p.created, p.id);
+  return new_(p.name, p.email, p.password, p.created, p.id, p.avatar, p.code);
 }
 
 /**
@@ -39,10 +49,11 @@ function isUser(arg: unknown): boolean {
   return (
     !!arg &&
     typeof arg === 'object' &&
-    'id' in arg && typeof arg.id === 'number' && 
-    'email' in arg && typeof arg.email === 'string' && 
-    'name' in arg && typeof arg.name === 'string' &&
-    'created' in arg && moment(arg.created as string | Date).isValid()
+  'id' in arg && typeof (arg as any).id === 'number' &&
+  'email' in arg && typeof (arg as any).email === 'string' &&
+  'name' in arg && typeof (arg as any).name === 'string' &&
+  'password' in arg && typeof (arg as any).password === 'string' &&
+  'created' in arg && moment((arg as any).created as string | Date).isValid()
   );
 }
 

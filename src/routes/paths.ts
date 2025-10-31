@@ -10,6 +10,8 @@ export default {
     Base: '/users',
     // user/all -> localhost:3000/users/all
     Get: '/all',
+    // 登录（获取 token）
+    Login: '/login',
     // user/add -> localhost:3000/users/add
     Add: '/add',
     Update: '/update',

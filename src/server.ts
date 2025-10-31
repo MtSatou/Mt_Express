@@ -13,6 +13,7 @@ import 'express-async-errors';
 
 import BaseRouter from '@src/routes';
 import Paths from '@src/routes/paths';
+import responseCode from '@src/routes/middleware/responseCode';
 
 import EnvVars from '@src/constants/EnvVars';
 import HttpStatusCodes from '@src/constants/HttpStatusCodes';
@@ -26,6 +27,9 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(cookieParser(EnvVars.CookieProps.Secret));
+
+// 全局响应包装（在路由注册之前生效）
+app.use(responseCode);
 
 // 显示开发期间在控制台中调用的路由
 if (EnvVars.NodeEnv === NodeEnvs.Dev.valueOf()) {

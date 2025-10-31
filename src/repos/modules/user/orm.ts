@@ -22,7 +22,19 @@ function saveDb(db: IDb): Promise<void> {
   return jsonfile.writeFile((__dirname + '/' + DB_FILE_NAME), db);
 }
 
+/** 返回数据库文件的绝对路径（便利函数） */
+function dbFilePath(): string {
+  return __dirname + '/' + DB_FILE_NAME;
+}
+
+/** lock 文件路径 */
+function lockFilePath(): string {
+  return dbFilePath() + '.lock';
+}
+
 export default {
   openDb,
   saveDb,
+  dbFilePath,
+  lockFilePath,
 } as const;

@@ -1,6 +1,22 @@
 export interface IUser {
+  // 系统自增 id，从 10000 开始
   id: number;
   name: string;
   email: string;
+  /** 登录密码 */
+  password: string;
+  // 可选密码/验证码字段（register 时传入）
+  code?: string;
+  // 头像
+  avatar?: string | null;
+  // 创建/更新时间
   created: Date;
+  updated?: Date | null;
+
+  // 当前 token 与过期时间（ms 时间戳）
+  token?: string | null;
+  tokenExpiresAt?: number | null;
+
+  // 最后一次活跃时间（ms 时间戳）
+  lastActiveAt?: number | null;
 }
