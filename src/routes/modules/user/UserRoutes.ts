@@ -25,7 +25,7 @@ async function register(req: IReq<IUser>, res: IRes) {
 }
 
 /**
- * 更新一名用户。
+ * 更新用户。
  */
 async function update(req: IReq<IUser>, res: IRes) {
   const auth = (res.locals as any).auth as { id?: number } | undefined;
@@ -60,12 +60,21 @@ async function update(req: IReq<IUser>, res: IRes) {
 }
 
 /**
- * 删除一个用户。
+ * 用户注销。
  */
 async function delete_(req: IReq, res: IRes) {
-  const id = +req.params.id;
+  const auth = (res.locals as any).auth as { id?: number } | undefined;
+  if (!auth || !auth.id) {
+    return res.status(HttpStatusCodes.FORBIDDEN).json({ message: '注销失败' });
+  }
+
+  const id = Number(req.params.id ?? auth.id);
+  if (Number(id) !== Number(auth.id)) {
+    return res.status(HttpStatusCodes.FORBIDDEN).json({ message: '注销失败' });
+  }
+
   await UserService.delete(id);
-  return res.status(HttpStatusCodes.OK).end();
+  return res.status(HttpStatusCodes.OK).json({ message: '注销成功' });
 }
 
 /**

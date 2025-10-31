@@ -150,3 +150,21 @@ userRouter.post(
     "message": "更新成功"
   }
   ```
+
+#### 用户注销 
+仅允许注销自己
+- `delete` /user/delete 
+- `header`
+  - Authorization `Bearer Token`
+- `param`
+  - id `number` `用户id`
+
+- 添加成功行为
+  - 更新用户数据
+  - 接口返回
+  ```js
+  {
+    "code": 0,
+    "message": "注销成功"
+  }
+  ```
