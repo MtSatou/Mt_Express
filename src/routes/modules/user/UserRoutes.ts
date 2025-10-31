@@ -6,7 +6,6 @@ import { IReq, IRes } from '../../types/express/misc';
 import UserRepo from '@src/repos/modules/user/UserRepo';
 import TokenUtil from '@src/util/token';
 import EnvVars from '@src/constants/EnvVars';
-import { newUser } from '@src/models/User';
 
 /**
  * 获取所有用户。
@@ -24,8 +23,7 @@ async function register(req: IReq<IUser>, res: IRes) {
   if (!username || !email || !password) {
     return res.status(HttpStatusCodes.BAD_REQUEST).json({ message: '' });
   }
-  const user = await newUser(req.body);
-  await UserService.addOne(user);
+  await UserService.addOne(req.body);
   return res.status(HttpStatusCodes.CREATED).json({ message: '注册成功' }).end();
 }
 

@@ -29,6 +29,19 @@ async function getById(id: number): Promise<IUser | null> {
 }
 
 /**
+ * 通过 username 获取用户
+ */
+async function getByUsername(username: string): Promise<IUser | null> {
+  const db = await orm.openDb();
+  for (const user of db.users) {
+    if (user.username === username) {
+      return user;
+    }
+  }
+  return null;
+}
+
+/**
  * 寻找指定id用户是否存在
  */
 async function persists(id: number): Promise<boolean> {
@@ -99,6 +112,7 @@ async function delete_(id: number): Promise<void> {
 export default {
   getOne,
   getById,
+  getByUsername,
   persists,
   getAll,
   add,

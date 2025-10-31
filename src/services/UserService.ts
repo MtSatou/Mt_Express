@@ -1,6 +1,7 @@
 import UserRepo from '@src/repos/modules/user/UserRepo';
 import { IUser } from '@src/types/user';
 import { RouteError } from '@src/other/classes';
+import { newUser } from '@src/models/User';
 import HttpStatusCodes from '@src/constants/HttpStatusCodes';
 
 export const USER_NOT_FOUND_ERR = 'User not found';
@@ -15,8 +16,13 @@ function getAll(): Promise<IUser[]> {
 /**
  * 添加一个用户
  */
-function addOne(user: IUser): Promise<void> {
-  return UserRepo.add(user);
+async function addOne(user: IUser): Promise<void> {
+  const byEmail = await UserRepo.getOne(user.email);
+  if (byEmail) {
+    throw new RouteError(HttpStatusCodes.BAD_REQUEST, '邮箱已存在');
+  }
+  const newuser = await newUser(user);
+  return UserRepo.add(newuser);
 }
 
 /**
