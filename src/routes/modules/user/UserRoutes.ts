@@ -50,7 +50,7 @@ async function delete_(req: IReq, res: IRes) {
  */
 async function login(req: IReq<{username: string; password: string}>, res: IRes) {
   const { username, password } = req.body as any;
-  if (!username || !password) return res.status(HttpStatusCodes.BAD_REQUEST).json({ message: 'username and password required' });
+  if (!username || !password) return res.status(HttpStatusCodes.BAD_REQUEST).json({ message: '请输入用户名或密码' });
 
   // username 可以是 id 或 email
   let user = null as any;
@@ -65,12 +65,12 @@ async function login(req: IReq<{username: string; password: string}>, res: IRes)
 
   if (!user) {
     // 认证失败 -> 403
-    return res.status(HttpStatusCodes.FORBIDDEN).json({ message: 'Invalid credentials' });
+    return res.status(HttpStatusCodes.FORBIDDEN).json({ message: '用户名或密码错误' });
   }
 
   // 简单密码校验（示例项目）。生产请用哈希比较
   if ((user as any).password !== password) {
-    return res.status(HttpStatusCodes.FORBIDDEN).json({ message: 'Invalid credentials' });
+    return res.status(HttpStatusCodes.FORBIDDEN).json({ message: '用户名或密码错误' });
   }
 
   // 生成 token，载荷包含 id 和 email。过期时间从 EnvVars.Jwt.Exp（ms）读取
