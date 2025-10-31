@@ -1,11 +1,18 @@
 # 关于Mt_Express
 使用express二次开发的服务框架，用于纯后端应用服务。仅用于学习讨论
 
-nodejs版本要求：`18 < n <20`。
+nodejs版本要求：`18 < n`。
+
+## 功能特性
+
+1. **WS**：支持ws链接，实现广播/心跳检测/房间功能
+2. **Token鉴权**：内置Token鉴权，实现API权限拦截
+3. **模块化管理**：使用Router/Service/pepos分离管理
+4. **内置用户模块**：实现用户的增删改查
 
 ## 启动服务
 `npm install` 初始化项目
-`npm run dev` 启动服务，默认开启端口 `3000`，如需修改请查看 `/env` 文件夹中的环境变量 `PORT` 字段进行修改。
+`npm run dev` 启动服务，默认开启HTTP端口 `3000` 与 WS端口`3000`，如需修改请查看 `/env` 文件夹中的环境变量 `PORT` 字段进行修改。
 
 ## 打包
 `npm run build` 打包。打包完成后将在根目录生成 `dist` 文件夹。进入 `dist` 文件夹执行 `node index.js` 测试能否正常启动。
@@ -168,3 +175,88 @@ userRouter.post(
     "message": "注销成功"
   }
   ```
+
+
+## WebSocket 
+
+### 功能特性
+
+1. **模块化设计**：按照项目现有的模块化结构组织
+2. **心跳检测**：支持心跳检测与房间通信
+3. **实时通信**：支持服务器与客户端的双向通信
+4. **消息广播**：支持向所有连接的客户端广播消息
+5. **错误处理**：完善的错误处理和日志记录
+
+### HTTP 接口
+#### 获取 WebSocket 状态
+- `get` /ws/status
+
+- 响应示例
+```json
+{
+  "code": 0,
+  "total": 0,  // 总数
+  "active": 0, // 在线
+  "rooms": {   // 已开启的房间
+      "2": 1
+  },
+  "connections": 0,
+  "message": "WebSocket 服务运行中"
+}
+```
+
+### WS 接口
+基础链接地址 `ws://localhost:3000/ws`
+
+#### 发送给指定人
+```js
+import ConnectionManager from '@/ws/ConnectionManager';
+// 用户id，由uuid生成
+ConnectionManager.sendToClient("用户id", {
+  // MessageType.ERROR 为枚举类型，有各种消息类型
+  type: MessageType.ERROR,
+  data: { message: '发送失败' },
+});
+```
+
+#### 广播消息给所有客户端
+```ts
+import WebSocketService from '@src/services/WebSocketService';
+WebSocketService.broadcast({
+  type: 'notification',
+  message: '系统通知',
+  timestamp: new Date().toISOString()
+});
+```
+
+#### 加入房间
+```ts
+import ConnectionManager from '@/ws/ConnectionManager';
+ConnectionManager.joinRoom('人员id', '房间号');
+```
+
+#### 广播给指定房间
+```ts
+ConnectionManager.broadcastToRoom(
+  "房间ID",
+  {
+    // 房间消息
+    type: MessageType.ROOM_MESSAGE,
+    // 消息体
+    data: message.data,
+    // 发送者
+    from: clientId,
+  },
+  // 排除发送者
+  [clientId]
+)
+```
+
+#### 离开房间
+```ts
+import ConnectionManager from '@/ws/ConnectionManager';
+ConnectionManager.leaveRoom(clientId, message.room);
+```
+
+### WS 测试
+启动服务后 访问 `/src/public/ws-advanced-test.html` 文件测试功能

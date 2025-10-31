@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebSocket 高级测试客户端</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 30px;
+      background: #f8f9fa;
+      border-bottom: 1px solid #dee2e6;
+    }
+
+    .status {
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .connected {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .disconnected {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .stats {
+      font-size: 14px;
+      color: #6c757d;
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 0;
+      height: 600px;
+    }
+
+    .sidebar {
+      background: #f8f9fa;
+      border-right: 1px solid #dee2e6;
+      padding: 20px;
+      overflow-y: auto;
+      height: 600px;
+    }
+
+    .sidebar h3 {
+      font-size: 16px;
+      margin-bottom: 15px;
+      color: #495057;
+    }
+
+    .control-group {
+      margin-bottom: 20px;
+    }
+
+    .control-group label {
+      display: block;
+      font-size: 13px;
+      color: #6c757d;
+      margin-bottom: 5px;
+    }
+
+    input[type="text"],
+    select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s;
+      margin-bottom: 10px;
+    }
+
+    button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-connect {
+      background: #28a745;
+      color: white;
+    }
+
+    .btn-disconnect {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-join {
+      background: #007bff;
+      color: white;
+    }
+
+    .btn-leave {
+      background: #6c757d;
+      color: white;
+    }
+
+    .btn-send {
+      background: #17a2b8;
+      color: white;
+    }
+
+    .btn-ping {
+      background: #ffc107;
+      color: #000;
+    }
+
+    .chat-area {
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      height: 600px;
+    }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+
+    .message {
+      margin-bottom: 12px;
+      padding: 12px;
+      border-radius: 8px;
+      word-wrap: break-word;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .message.sent {
+      background: #e3f2fd;
+      border-left: 4px solid #2196f3;
+    }
+
+    .message.received {
+      background: #f1f8e9;
+      border-left: 4px solid #8bc34a;
+    }
+
+    .message.system {
+      background: #fff3e0;
+      border-left: 4px solid #ff9800;
+    }
+
+    .message.error {
+      background: #ffebee;
+      border-left: 4px solid #f44336;
+    }
+
+    .message-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 12px;
+      color: #6c757d;
+    }
+
+    .message-type {
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .message-content {
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .message-content pre {
+      background: rgba(0, 0, 0, 0.05);
+      padding: 8px;
+      border-radius: 4px;
+      overflow-x: auto;
+      margin-top: 5px;
+    }
+
+    .input-area {
+      display: flex;
+      gap: 10px;
+    }
+
+    .input-area input {
+      flex: 1;
+      margin-bottom: 0;
+    }
+
+    .input-area button {
+      width: auto;
+      margin-bottom: 0;
+      padding: 10px 30px;
+    }
+
+    .room-list {
+      list-style: none;
+      margin-top: 10px;
+    }
+
+    .room-item {
+      padding: 8px 12px;
+      background: white;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .room-item button {
+      width: auto;
+      padding: 4px 12px;
+      font-size: 12px;
+      margin-bottom: 0;
+    }
+
+    .quick-messages {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 15px;
+    }
+
+    .quick-messages button {
+      font-size: 12px;
+      padding: 8px;
+      background: #6c757d;
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🚀 WebSocket 高级测试客户端</h1>
+      <p>支持心跳检测、房间管理、消息广播等功能</p>
+    </div>
+
+    <div class="status-bar">
+      <div>
+        <div id="status" class="status disconnected">未连接</div>
+      </div>
+      <div class="stats">
+        <span id="clientId">客户端 ID: --</span> |
+        <span id="messageCount">消息数: 0</span> |
+        <span id="uptime">运行时间: 0s</span>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="sidebar">
+        <div class="control-group">
+          <h3>🔌 连接控制</h3>
+          <input type="text" id="wsUrl" value="ws://localhost:3000/ws" placeholder="WebSocket URL">
+          <button id="connectBtn" class="btn-connect" onclick="connect()">连接</button>
+          <button id="disconnectBtn" class="btn-disconnect" onclick="disconnect()" disabled>断开</button>
+        </div>
+
+        <div class="control-group">
+          <h3>🏠 房间管理</h3>
+          <input type="text" id="roomInput" placeholder="房间 ID">
+          <button class="btn-join" onclick="joinRoom()" id="joinBtn" disabled>加入房间</button>
+          <ul id="roomList" class="room-list"></ul>
+        </div>
+
+        <div class="control-group">
+          <h3>⚡ 快捷操作</h3>
+          <button class="btn-ping" onclick="sendPing()" id="pingBtn" disabled>发送 Ping</button>
+          <button class="btn-send" onclick="sendBroadcast()" id="broadcastBtn" disabled>广播测试</button>
+        </div>
+
+        <div class="control-group">
+          <h3>� 房间广播</h3>
+          <input type="text" id="roomBroadcastInput" placeholder="房间 ID">
+          <input type="text" id="roomBroadcastMsg" placeholder="广播内容">
+          <button class="btn-send" onclick="broadcastToRoom()" id="roomBroadcastBtn" disabled>发送到房间</button>
+        </div>
+
+        <div class="control-group">
+          <h3>�📝 消息类型</h3>
+          <select id="messageType">
+            <option value="message">普通消息</option>
+            <option value="room_message">房间消息</option>
+            <option value="broadcast">广播</option>
+            <option value="ping">Ping</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="chat-area">
+        <div class="messages" id="messages"></div>
+        <div class="input-area">
+          <input type="text" id="messageInput" placeholder="输入消息内容（JSON 或文本）" disabled>
+          <button class="btn-send" onclick="sendMessage()" id="sendBtn" disabled>发送</button>
+        </div>
+        <div class="quick-messages">
+          <button onclick="sendQuick('Hello!')" id="quick1" disabled>👋 Hello</button>
+          <button onclick="sendQuick('How are you?')" id="quick2" disabled>❓ How are you</button>
+          <button onclick="sendQuick('Thanks!')" id="quick3" disabled>🙏 Thanks</button>
+          <button onclick="sendQuick('Bye!')" id="quick4" disabled>👋 Bye</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let ws = null;
+    let clientId = null;
+    let messageCount = 0;
+    let startTime = null;
+    let uptimeInterval = null;
+    let joinedRooms = new Set();
+
+    const elements = {
+      status: document.getElementById('status'),
+      clientId: document.getElementById('clientId'),
+      messageCount: document.getElementById('messageCount'),
+      uptime: document.getElementById('uptime'),
+      messages: document.getElementById('messages'),
+      messageInput: document.getElementById('messageInput'),
+      roomInput: document.getElementById('roomInput'),
+      roomList: document.getElementById('roomList'),
+      connectBtn: document.getElementById('connectBtn'),
+      disconnectBtn: document.getElementById('disconnectBtn'),
+      sendBtn: document.getElementById('sendBtn'),
+      joinBtn: document.getElementById('joinBtn'),
+      pingBtn: document.getElementById('pingBtn'),
+      broadcastBtn: document.getElementById('broadcastBtn'),
+      roomBroadcastBtn: document.getElementById('roomBroadcastBtn'),
+      roomBroadcastInput: document.getElementById('roomBroadcastInput'),
+      roomBroadcastMsg: document.getElementById('roomBroadcastMsg'),
+      quick1: document.getElementById('quick1'),
+      quick2: document.getElementById('quick2'),
+      quick3: document.getElementById('quick3'),
+      quick4: document.getElementById('quick4'),
+    };
+
+    function addMessage(content, type = 'system') {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${type}`;
+
+      const header = document.createElement('div');
+      header.className = 'message-header';
+      header.innerHTML = `
+                <span class="message-type">${type}</span>
+                <span>${new Date().toLocaleTimeString()}</span>
+            `;
+
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'message-content';
+
+      if (typeof content === 'object') {
+        contentDiv.innerHTML = `<pre>${JSON.stringify(content, null, 2)}</pre>`;
+      } else {
+        contentDiv.textContent = content;
+      }
+
+      messageDiv.appendChild(header);
+      messageDiv.appendChild(contentDiv);
+      elements.messages.appendChild(messageDiv);
+      elements.messages.scrollTop = elements.messages.scrollHeight;
+
+      messageCount++;
+      elements.messageCount.textContent = `消息数: ${messageCount}`;
+    }
+
+    function updateStatus(connected) {
+      if (connected) {
+        elements.status.textContent = '已连接';
+        elements.status.className = 'status connected';
+        elements.connectBtn.disabled = true;
+        elements.disconnectBtn.disabled = false;
+        elements.messageInput.disabled = false;
+        elements.sendBtn.disabled = false;
+        elements.joinBtn.disabled = false;
+        elements.pingBtn.disabled = false;
+        elements.broadcastBtn.disabled = false;
+        elements.roomBroadcastBtn.disabled = false;
+        elements.quick1.disabled = false;
+        elements.quick2.disabled = false;
+        elements.quick3.disabled = false;
+        elements.quick4.disabled = false;
+
+        startTime = Date.now();
+        updateUptime();
+        uptimeInterval = setInterval(updateUptime, 1000);
+      } else {
+        elements.status.textContent = '未连接';
+        elements.status.className = 'status disconnected';
+        elements.connectBtn.disabled = false;
+        elements.disconnectBtn.disabled = true;
+        elements.messageInput.disabled = true;
+        elements.sendBtn.disabled = true;
+        elements.joinBtn.disabled = true;
+        elements.pingBtn.disabled = true;
+        elements.broadcastBtn.disabled = true;
+        elements.roomBroadcastBtn.disabled = true;
+        elements.quick1.disabled = true;
+        elements.quick2.disabled = true;
+        elements.quick3.disabled = true;
+        elements.quick4.disabled = true;
+
+        if (uptimeInterval) {
+          clearInterval(uptimeInterval);
+          uptimeInterval = null;
+        }
+      }
+    }
+
+    function updateUptime() {
+      if (startTime) {
+        const seconds = Math.floor((Date.now() - startTime) / 1000);
+        elements.uptime.textContent = `运行时间: ${seconds}s`;
+      }
+    }
+
+    function updateRoomList() {
+      elements.roomList.innerHTML = '';
+      joinedRooms.forEach(room => {
+        const li = document.createElement('li');
+        li.className = 'room-item';
+        li.innerHTML = `
+                    <span>📍 ${room}</span>
+                    <button class="btn-leave" onclick="leaveRoom('${room}')">离开</button>
+                `;
+        elements.roomList.appendChild(li);
+      });
+    }
+
+    function connect() {
+      const wsUrl = document.getElementById('wsUrl').value;
+      addMessage(`正在连接到 ${wsUrl}...`, 'system');
+
+      ws = new WebSocket(wsUrl);
+
+      ws.onopen = function () {
+        addMessage('WebSocket 连接已建立', 'system');
+        updateStatus(true);
+      };
+
+      ws.onmessage = function (event) {
+        try {
+          const data = JSON.parse(event.data);
+
+          // 保存客户端 ID
+          if (data.type === 'system' && data.data?.clientId) {
+            clientId = data.data.clientId;
+            elements.clientId.textContent = `客户端 ID: ${clientId.substring(0, 8)}...`;
+          }
+
+          addMessage(data, 'received');
+        } catch (e) {
+          addMessage(event.data, 'received');
+        }
+      };
+
+      ws.onerror = function (error) {
+        addMessage('WebSocket 错误', 'error');
+        console.error('WebSocket error:', error);
+      };
+
+      ws.onclose = function () {
+        addMessage('WebSocket 连接已关闭', 'system');
+        updateStatus(false);
+        joinedRooms.clear();
+        updateRoomList();
+        ws = null;
+      };
+    }
+
+    function disconnect() {
+      if (ws) {
+        ws.close();
+      }
+    }
+
+    function sendMessage() {
+      const input = elements.messageInput.value.trim();
+      if (!input) {
+        alert('请输入消息');
+        return;
+      }
+
+      if (!ws || ws.readyState !== WebSocket.OPEN) {
+        alert('WebSocket 未连接');
+        return;
+      }
+
+      const type = document.getElementById('messageType').value;
+      let message;
+
+      try {
+        // 尝试解析为 JSON
+        const data = JSON.parse(input);
+        message = { type, data };
+      } catch (e) {
+        // 不是 JSON，使用文本
+        message = { type, data: { text: input } };
+      }
+
+      // 如果是房间消息，添加房间信息
+      if (type === 'room_message' && joinedRooms.size > 0) {
+        message.room = Array.from(joinedRooms)[0];
+      }
+
+      ws.send(JSON.stringify(message));
+      addMessage(message, 'sent');
+      elements.messageInput.value = '';
+    }
+
+    function sendQuick(text) {
+      elements.messageInput.value = JSON.stringify({ text });
+      sendMessage();
+    }
+
+    function sendPing() {
+      if (!ws || ws.readyState !== WebSocket.OPEN) {
+        alert('WebSocket 未连接');
+        return;
+      }
+
+      ws.send(JSON.stringify({ type: 'ping' }));
+      addMessage({ type: 'ping' }, 'sent');
+    }
+
+    function sendBroadcast() {
+      if (!ws || ws.readyState !== WebSocket.OPEN) {
+        alert('WebSocket 未连接');
+        return;
+      }
+
+      const message = {
+        type: 'broadcast',
+        data: {
+          text: '这是一条广播测试消息',
+          timestamp: new Date().toISOString()
+        }
+      };
+
+      ws.send(JSON.stringify(message));
+      addMessage(message, 'sent');
+    }
+
+    function broadcastToRoom() {
+      const roomId = elements.roomBroadcastInput.value.trim();
+      const msgContent = elements.roomBroadcastMsg.value.trim();
+
+      if (!roomId) {
+        alert('请输入房间 ID');
+        return;
+      }
+
+      if (!msgContent) {
+        alert('请输入广播内容');
+        return;
+      }
+
+      if (!ws || ws.readyState !== WebSocket.OPEN) {
+        alert('WebSocket 未连接');
+        return;
+      }
+
+      const message = {
+        type: 'room_message',
+        room: roomId,
+        data: {
+          text: msgContent,
+          broadcast: true,
+          timestamp: new Date().toISOString()
+        }
+      };
+
+      ws.send(JSON.stringify(message));
+      addMessage(message, 'sent');
+
+      // 清空输入框
+      elements.roomBroadcastMsg.value = '';
+
+      addMessage(`已向房间 ${roomId} 发送广播`, 'system');
+    }
+
+    function joinRoom() {
+      const room = elements.roomInput.value.trim();
+      if (!room) {
+        alert('请输入房间 ID');
+        return;
+      }
+
+      if (!ws || ws.readyState !== WebSocket.OPEN) {
+        alert('WebSocket 未连接');
+        return;
+      }
+
+      if (joinedRooms.has(room)) {
+        alert('已在该房间中');
+        return;
+      }
+
+      ws.send(JSON.stringify({
+        type: 'join_room',
+        room: room
+      }));
+
+      joinedRooms.add(room);
+      updateRoomList();
+      elements.roomInput.value = '';
+      addMessage(`正在加入房间: ${room}`, 'system');
+    }
+
+    function leaveRoom(room) {
+      if (!ws || ws.readyState !== WebSocket.OPEN) {
+        return;
+      }
+
+      ws.send(JSON.stringify({
+        type: 'leave_room',
+        room: room
+      }));
+
+      joinedRooms.delete(room);
+      updateRoomList();
+      addMessage(`正在离开房间: ${room}`, 'system');
+    }
+
+    // 按回车发送消息
+    elements.messageInput.addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+
+    // 页面加载完成后的提示
+    addMessage('准备就绪，点击"连接"按钮开始', 'system');
+    addMessage('支持功能：心跳检测、房间管理、消息广播', 'system');
+  </script>
+</body>
+
+</html>
