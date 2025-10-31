@@ -11,11 +11,7 @@ export interface IUser {
   avatar?: string | null;
   // 创建/更新时间
   created: Date | string;
-  updated?: Date | string |null;
-
-  // 当前 token 与过期时间（ms 时间戳）
-  token?: string | null;
-  tokenExpiresAt?: number | null;
+  updated?: Date | string | null;
 
   // 最后一次活跃时间（ms 时间戳）
   lastActiveAt?: number | null;
