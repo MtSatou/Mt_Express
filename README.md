@@ -26,4 +26,85 @@ nodejs版本要求：`18 < n <20`。
 
 ```
 
+## 权限
+应用已全局内置权限设置，只需在对应接口添加 `auth` 函数即可。参考：
+MTExpress\src\routes\modules\user\index.ts
 
+```js
+import auth from '@src/routes/middleware/auth';
+// porst 请求 /test 路径
+userRouter.post(
+  '/test',
+  // 该路径必须包含 user/email/password 字段，且字段类型必须为指定类型
+  validate(['username', 'string']),
+  validate(['age', 'number']),
+  // auth 为程序校验token函数，加入后必须传入有效token才能进入servers
+  auth,
+  // servers 函数
+  UserRoutes.register,
+);
+```
+
+## 内置接口
+
+### 全局响应
+```js
+{
+  code: 0,
+  message: "内容"
+}
+```
+
+### 用户接口 /user
+
+#### 用户信息
+```js
+{
+  // 唯一id
+  id: number;
+  // 用户昵称
+  username: string;
+  // 邮箱
+  email: string;
+  // 登录密码
+  password: string;
+  // 可选密码/验证码字段（register 时传入）
+  code?: string;
+  // 头像
+  avatar?: string | null;
+  // 创建/更新时间
+  created: Date | string;
+  updated?: Date | string |null;
+  // 当前 token 与过期时间（ms 时间戳）
+  token?: string | null;
+  tokenExpiresAt?: number | null;
+  // 最后一次活跃时间（ms 时间戳）
+  lastActiveAt?: number | null;
+}
+
+```
+
+#### 添加用户 
+- `post` /user/register 
+- `body`
+  - username `string` `用户名`
+  - password `string` `密码` (明文 -> 哈希)
+  - email `string` `邮箱`
+  - avatar `string可选` `头像` `后续改为file 直接存文件路径`
+
+- 添加成功用户行为
+  - 存储用户数据
+  ```js
+  {
+      "id": 0,
+      "username": "zhangsan",
+      "email": "123@163.com",
+      "password": "12345678",
+      "avatar": "**.jpg",
+      "created": "1990/01/01 12:00:00",
+      "updated": null,
+      "token": null,
+      "tokenExpiresAt": null,
+      "lastActiveAt": null
+    }
+  ```
