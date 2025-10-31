@@ -54,7 +54,6 @@ async function getAll(): Promise<IUser[]> {
  */
 async function add(user: IUser): Promise<void> {
   const db = await orm.openDb();
-  user.id = getRandomInt();
   db.users.push(user);
   return orm.saveDb(db);
 }
@@ -69,7 +68,7 @@ async function update(user: IUser): Promise<void> {
       const dbUser = db.users[i];
       db.users[i] = {
         ...dbUser,
-        name: user.name,
+        username: (user as any).username ?? dbUser.username,
         email: user.email,
         // allow updating optional fields if provided
         password: (user as any).password ?? dbUser.password,

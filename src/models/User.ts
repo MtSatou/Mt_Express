@@ -1,29 +1,27 @@
-import moment from 'moment';
 import { IUser } from '@src/types/user';
+import UserPepo from '@src/repos/modules/user/UserRepo';
 
-const INVALID_CONSTRUCTOR_PARAM = 'nameOrObj arg must a string or an object ' + 
-  'with the appropriate user keys.';
+const INVALID_CONSTRUCTOR_PARAM = 'with the appropriate user keys.';
 
 /**
  * 创建新用户默认数据
  */
 function new_(
-  name?: string,
+  id?: number,
+  username?: string,
   email?: string,
   password?: string,
-  created?: Date,
-  id?: number, // id 放在最后一个参数是因为通常由数据库设置
   avatar?: string | null,
   code?: string,
 ): IUser {
   return {
     id: (id ?? -1),
-    name: (name ?? ''),
+    username: (username ?? ''),
     email: (email ?? ''),
     password: (password ?? ''),
-    code: code,
     avatar: (avatar ?? null),
-    created: (created ? new Date(created) : new Date()),
+    code: code,
+    created: new Date().toLocaleString(),
     updated: null,
     token: null,
     tokenExpiresAt: null,
@@ -34,12 +32,17 @@ function new_(
 /**
  * 通过一个符合用户的字段生成一个新用户
  */
-function from(param: object): IUser {
+async function newUser(param: object): Promise<IUser> {
+  const allUsers = await UserPepo.getAll();
+  console.log(allUsers, "????")
+  // 用户id由这里设置，未设置锁，异步时可能会重复id。后续添加队列解决
+  const id = 10000 + allUsers.length;
+  (param as any).id = id;
   if (!isUser(param)) {
     throw new Error(INVALID_CONSTRUCTOR_PARAM);
   }
   const p = param as IUser;
-  return new_(p.name, p.email, p.password, p.created, p.id, p.avatar, p.code);
+  return new_(p.id, p.username, p.email, p.password, p.avatar, p.code);
 }
 
 /**
@@ -51,16 +54,18 @@ function isUser(arg: unknown): boolean {
     typeof arg === 'object' &&
   'id' in arg && typeof (arg as any).id === 'number' &&
   'email' in arg && typeof (arg as any).email === 'string' &&
-  'name' in arg && typeof (arg as any).name === 'string' &&
-  'password' in arg && typeof (arg as any).password === 'string' &&
-  'created' in arg && moment((arg as any).created as string | Date).isValid()
+  'username' in arg && typeof (arg as any).username === 'string' &&
+  'password' in arg && typeof (arg as any).password === 'string'
   );
 }
 
+export {
+  newUser,
+  isUser,
+};
 
 // **** Export default **** //
 export default {
-  new: new_,
-  from,
+  newUser,
   isUser,
 } as const;

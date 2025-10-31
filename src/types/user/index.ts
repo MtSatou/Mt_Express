@@ -1,7 +1,7 @@
 export interface IUser {
   // 系统自增 id，从 10000 开始
   id: number;
-  name: string;
+  username: string;
   email: string;
   /** 登录密码 */
   password: string;
@@ -10,8 +10,8 @@ export interface IUser {
   // 头像
   avatar?: string | null;
   // 创建/更新时间
-  created: Date;
-  updated?: Date | null;
+  created: Date | string;
+  updated?: Date | string |null;
 
   // 当前 token 与过期时间（ms 时间戳）
   token?: string | null;

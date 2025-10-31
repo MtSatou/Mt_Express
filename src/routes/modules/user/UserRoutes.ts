@@ -6,6 +6,7 @@ import { IReq, IRes } from '../../types/express/misc';
 import UserRepo from '@src/repos/modules/user/UserRepo';
 import TokenUtil from '@src/util/token';
 import EnvVars from '@src/constants/EnvVars';
+import { newUser } from '@src/models/User';
 
 /**
  * 获取所有用户。
@@ -18,15 +19,14 @@ async function getAll(_: IReq, res: IRes) {
 /**
  * 添加一名用户。
  */
-async function register(req: IReq<{user: IUser}>, res: IRes) {
-  const { user } = req.body;
-  if (!user || !user.email || !user.name || !user.password) {
-    return res.status(HttpStatusCodes.BAD_REQUEST).json({ message: 'name, email and password are required' });
+async function register(req: IReq<IUser>, res: IRes) {
+  const { username, email, password } = req.body;
+  if (!username || !email || !password) {
+    return res.status(HttpStatusCodes.BAD_REQUEST).json({ message: '' });
   }
-  // ensure created timestamp filled if missing
-  user.created = user.created ?? new Date();
+  const user = await newUser(req.body);
   await UserService.addOne(user);
-  return res.status(HttpStatusCodes.CREATED).end();
+  return res.status(HttpStatusCodes.CREATED).json({ message: '注册成功' }).end();
 }
 
 /**

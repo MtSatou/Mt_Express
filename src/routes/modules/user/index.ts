@@ -22,12 +22,13 @@ userRouter.get(
 
 /**
  * 添加一名用户。
- * /users/add
+ * /users/register
  */
 userRouter.post(
-  '/add',
-  validate(['user', User.isUser]),
-  auth,
+  '/register',
+  validate(['username', 'string']),
+  validate(['email', 'string']),
+  validate(['password', 'string']),
   UserRoutes.register,
 );
 
@@ -37,7 +38,7 @@ userRouter.post(
  */
 userRouter.put(
   '/update',
-  validate(['user', User.isUser]),
+  validate(['username', User.isUser]),
   auth,
   UserRoutes.update,
 );
