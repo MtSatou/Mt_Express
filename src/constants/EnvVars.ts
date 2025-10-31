@@ -25,4 +25,6 @@ export default {
     Secret: (process.env.JWT_SECRET ??  ''),
     Exp: (process.env.COOKIE_EXP ?? ''), // exp at the same time as the cookie
   },
+  // API 根路由（例如 '/api'）。将根路径放到配置中，便于部署时修改前缀
+  ApiBase: (process.env.API_BASE ?? '/api'),
 } as const;

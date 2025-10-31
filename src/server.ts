@@ -12,10 +12,8 @@ import logger from 'jet-logger';
 import 'express-async-errors';
 
 import BaseRouter from '@src/routes';
-import Paths from '@src/routes/paths';
-import responseCode from '@src/routes/middleware/responseCode';
-
 import EnvVars from '@src/constants/EnvVars';
+import responseCode from '@src/routes/middleware/responseCode';
 import HttpStatusCodes from '@src/constants/HttpStatusCodes';
 
 import { NodeEnvs } from '@src/constants/misc';
@@ -42,7 +40,7 @@ if (EnvVars.NodeEnv === NodeEnvs.Production.valueOf()) {
 }
 
 // 注册接口
-app.use(Paths.Base, BaseRouter);
+app.use(EnvVars.ApiBase, BaseRouter);
 
 // 添加错误处理程序
 app.use((

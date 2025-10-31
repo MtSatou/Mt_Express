@@ -47,7 +47,9 @@ async function delete_(req: IReq, res: IRes) {
   return res.status(HttpStatusCodes.OK).end();
 }
 
-// login 不需要 auth
+/**
+ * 用户登录，无需auth
+ */
 async function login(req: IReq<{username: string; password: string}>, res: IRes) {
   const { username, password } = req.body as any;
   if (!username || !password) return res.status(HttpStatusCodes.BAD_REQUEST).json({ message: 'username and password required' });
