@@ -123,6 +123,7 @@ userRouter.post(
   {
     "code": 0,
     "token": "",
-    "expiresAt": 0
+    "expiresAt": 0,
+    "user": {} // 用户信息
   }
   ```

@@ -58,4 +58,5 @@ export default {
   addOne,
   updateOne,
   delete: _delete,
+  login: UserRepo.login
 } as const;
