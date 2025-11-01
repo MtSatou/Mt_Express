@@ -92,6 +92,24 @@ async function update(user: IUser): Promise<void> {
 }
 
 /**
+ * 设置用户当前有效 token 与到期时间（毫秒）
+ */
+async function setToken(id: number, token: string | null, tokenExpiresAt: number | null): Promise<void> {
+  const db = await orm.openDb();
+  for (let i = 0; i < db.users.length; i++) {
+    if (db.users[i].id === id) {
+      const dbUser = db.users[i];
+      db.users[i] = {
+        ...dbUser,
+        token,
+        tokenExpiresAt,
+      } as any;
+      return orm.saveDb(db);
+    }
+  }
+}
+
+/**
  * 删除用户
  */
 async function delete_(id: number): Promise<void> {
@@ -118,5 +136,6 @@ export default {
   getAll,
   add,
   update,
+  setToken,
   delete: delete_,
 } as const;

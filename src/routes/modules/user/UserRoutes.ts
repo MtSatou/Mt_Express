@@ -3,6 +3,9 @@ import HttpStatusCodes from '@src/constants/HttpStatusCodes';
 import UserService from '@src/services/UserService';
 import { IUser } from '@src/types/user';
 import { IReq, IRes } from '../../types/express/misc';
+import TokenUtil, { TokenPayload } from '@src/util/token';
+import jwt from 'jsonwebtoken';
+import UserRepo from '@src/repos/modules/user/UserRepo';
 
 /**
  * 获取所有用户。
@@ -89,10 +92,67 @@ async function login(req: IReq<{ username: string; password: string }>, res: IRe
   return res.status(HttpStatusCodes.OK).json({ token, expiresAt, user });
 }
 
+/**
+ * 校验 token 是否有效
+ * 支持 Authorization: Bearer <token> 或 query/body 中的 token 字段
+ */
+async function validateToken(req: IReq, res: IRes) {
+  const bodyToken = (req.body as any)?.token ? String((req.body as any).token) : '';
+  const token = bodyToken;
+
+  if (!token) {
+    return res.status(HttpStatusCodes.BAD_REQUEST).json({ valid: false, message: '缺少 token' });
+  }
+
+  try {
+    const payload = TokenUtil.verifyToken(token);
+    // 额外：检查该 token 是否与用户记录中当前 token 匹配（以支持刷新后废弃旧 token）
+    const user = await UserRepo.getById(Number((payload as any).id));
+    if (!user) {
+      return res.status(HttpStatusCodes.FORBIDDEN).json({ valid: false, message: '无效的Token' });
+    }
+    if (!((user as any).token) || ((user as any).token) !== token) {
+      return res.status(HttpStatusCodes.FORBIDDEN).json({ valid: false, message: '无效的Token' });
+    }
+    return res.status(HttpStatusCodes.OK).json({ valid: true, payload });
+  } catch (err) {
+    return res.status(HttpStatusCodes.FORBIDDEN).json({ valid: false, message: '无效的Token' });
+  }
+}
+
+/**
+ * 刷新当前用户的 token（延长过期时间）
+ * 需要 auth 中间件将解析后的 payload 放到 res.locals.auth
+ */
+async function refreshToken(req: IReq, res: IRes) {
+  const auth = (res.locals as any).auth as TokenPayload | undefined;
+  if (!auth || !auth.id) {
+    return res.status(HttpStatusCodes.FORBIDDEN).json({ message: '无效的用户' });
+  }
+
+  // 复制 payload 并移除 iat/exp 等自动字段
+  const payload: Record<string, any> = { ...auth } as Record<string, any>;
+  delete payload.iat;
+  delete payload.exp;
+  delete payload.nbf;
+
+  // 签发新的 token（使用默认过期时间）
+  const token = TokenUtil.signToken(payload as any);
+
+  // 解析 token 获得过期时间（以毫秒为单位）并持久化到用户记录中，废弃旧 token
+  const decoded: any = jwt.decode(token);
+  const expiresAtMs = decoded?.exp ? Number(decoded.exp) * 1000 : null;
+  await UserRepo.setToken(Number(auth.id), token, expiresAtMs);
+
+  return res.status(HttpStatusCodes.OK).json({ token, expiresAt: expiresAtMs });
+}
+
 export default {
   getAll,
   update,
   delete: delete_,
   register,
   login,
+  validateToken,
+  refreshToken,
 } as const;

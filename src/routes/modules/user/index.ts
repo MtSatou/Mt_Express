@@ -54,4 +54,27 @@ userRouter.post(
   UserRoutes.login,
 );
 
+/**
+ * 校验 token 是否有效（支持 Authorization header / query / body）
+ * GET /users/validate-token?token=... 或 POST /users/validate-token { token }
+ */
+userRouter.get(
+  '/validate-token',
+  UserRoutes.validateToken,
+);
+
+userRouter.post(
+  '/validate-token',
+  UserRoutes.validateToken,
+);
+
+/**
+ * 刷新当前用户 token（需要认证）
+ */
+userRouter.post(
+  '/refresh-token',
+  auth,
+  UserRoutes.refreshToken,
+);
+
 export default userRouter;

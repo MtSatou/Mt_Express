@@ -89,6 +89,11 @@ async function login(username: string, password: string) {
   const expMs = Number(EnvVars.Jwt.Exp ?? process.env.COOKIE_EXP ?? 0) || (2 * 60 * 60 * 1000);
   const token = TokenUtil.signToken({ id: user.id, email: user.email }, Math.floor(expMs / 1000));
   const expiresAt = Date.now() + expMs;
+  user.token = token;
+  user.tokenExpiresAt = expiresAt;
+
+  // 将 token 存储到用户记录中，便于后续使旧 token 失效
+  await UserRepo.setToken(user.id, token, expiresAt);
   return { token, expiresAt, user };
 }
 
