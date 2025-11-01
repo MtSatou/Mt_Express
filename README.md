@@ -176,6 +176,42 @@ userRouter.post(
   }
   ```
 
+#### 检验token是否有效
+检验token是否有效（无需鉴权）
+- `post` /users/validate-token
+- `body`
+  - id `token` `无需 Bearer的Token`
+
+- 添加成功行为
+  - 接口返回
+  ```js
+  {
+    "code": 0,
+    "valid": true,
+    "payload": {
+        "id": 0,
+        "email": "xxx",
+        "iat": 0,
+        "exp": 0
+    }
+  }
+  ```
+
+#### 刷新token
+仅刷新自己
+- `post` /users/validate-token
+- `header`
+  - Authorization `Bearer Token`
+
+- 添加成功行为
+  - 接口返回
+  ```js
+  {
+    "code": 0,
+    "token": "",
+    "expiresAt": 0
+  }
+  ```
 
 ## WebSocket 
 
