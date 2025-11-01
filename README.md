@@ -177,8 +177,10 @@ userRouter.post(
   ```
 
 #### 检验token是否有效
-检验token是否有效（无需鉴权）
+检验token是否有效
 - `post` /users/validate-token
+- `header`
+  - Authorization `Bearer Token`
 - `body`
   - id `token` `无需 Bearer的Token`
 
@@ -193,7 +195,8 @@ userRouter.post(
         "email": "xxx",
         "iat": 0,
         "exp": 0
-    }
+    },
+    "user": {}
   }
   ```
 

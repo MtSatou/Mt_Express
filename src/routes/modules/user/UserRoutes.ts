@@ -97,8 +97,12 @@ async function login(req: IReq<{ username: string; password: string }>, res: IRe
  * 支持 Authorization: Bearer <token> 或 query/body 中的 token 字段
  */
 async function validateToken(req: IReq, res: IRes) {
+  const headerToken = req.headers['authorization']?.startsWith('Bearer ')
+    ? req.headers['authorization']!.slice(7)
+    : (req.headers['authorization'] as string) || '';
+  const queryToken = (req.query as any)?.token ? String((req.query as any).token) : '';
   const bodyToken = (req.body as any)?.token ? String((req.body as any).token) : '';
-  const token = bodyToken;
+  const token = headerToken || queryToken || bodyToken;
 
   if (!token) {
     return res.status(HttpStatusCodes.BAD_REQUEST).json({ valid: false, message: '缺少 token' });
@@ -114,7 +118,7 @@ async function validateToken(req: IReq, res: IRes) {
     if (!((user as any).token) || ((user as any).token) !== token) {
       return res.status(HttpStatusCodes.FORBIDDEN).json({ valid: false, message: '无效的Token' });
     }
-    return res.status(HttpStatusCodes.OK).json({ valid: true, payload });
+    return res.status(HttpStatusCodes.OK).json({ valid: true, payload, user });
   } catch (err) {
     return res.status(HttpStatusCodes.FORBIDDEN).json({ valid: false, message: '无效的Token' });
   }

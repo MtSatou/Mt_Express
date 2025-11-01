@@ -60,11 +60,13 @@ userRouter.post(
  */
 userRouter.get(
   '/validate-token',
+  auth,
   UserRoutes.validateToken,
 );
 
 userRouter.post(
   '/validate-token',
+  auth,
   UserRoutes.validateToken,
 );
 
