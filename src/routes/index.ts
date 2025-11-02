@@ -1,8 +1,12 @@
 import { Router } from 'express';
 import userRouter, { Base as UserBase } from './modules/user';
 import wsRouter, { Base as WsBase } from '../ws';
+import uploadRouter, { Base as UploadBase } from './modules/upload';
 
 const apiRouter = Router();
+
+// 添加子服务 文件上传路由
+apiRouter.use(UploadBase, uploadRouter);
 
 // 添加子服务 用户路由
 apiRouter.use(UserBase, userRouter);

@@ -62,6 +62,119 @@ userRouter.post(
 }
 ```
 
+### 文件上传
+#### 上传单个文件
+- `post` /upload
+- `header`
+  - Authorization `Bearer Token`
+- `Content-Type`: `multipart/form-data`
+- `form-data`
+  - file `file` `文件`
+
+- 添加成功行为
+  - 数据存储于 /repos/db 文件夹
+  - 文件存储于 uploads 文件夹
+  - 成功返回
+  ```js
+  {
+    "id": 1,
+    // 源文件名
+    "originalName": "avatar.jpg",
+    // 服务端文件名
+    "storedName": "20251102_1762050024918_1236.jpg",
+    // 服务端文件路径
+    "filePath": "/uploads/20251102_1762050024918_1236.jpg",
+    // 文件大小
+    "fileSize": 53886,
+    // 文件类型
+    "mimeType": "image/jpeg",
+    // 上传时间
+    "uploadTime": "2025/11/2 10:20:24"
+  }
+  ```
+
+
+#### 获取我的上传列表
+- `get` /upload/list
+- `header`
+  - Authorization `Bearer Token`
+
+- 添加成功行为
+  - 成功返回
+  ```js
+  {
+    "code": 0,
+    "uploads": [
+        {
+        "id": 1,
+        // 源文件名
+        "originalName": "avatar.jpg",
+        // 服务端文件名
+        "storedName": "20251102_1762050024918_1236.jpg",
+        // 服务端文件路径
+        "filePath": "/uploads/20251102_1762050024918_1236.jpg",
+        // 文件大小
+        "fileSize": 53886,
+        // 文件类型
+        "mimeType": "image/jpeg",
+        // 上传时间
+        "uploadTime": "2025/11/2 10:20:24"
+      },
+      // ...
+    ]
+  }
+  ```
+
+
+#### 通过文件id获取单个上传记录
+只能查看自己的上传记录
+- `get` /upload/:id
+- `header`
+  - Authorization `Bearer Token`
+
+- 添加成功行为
+  - 成功返回
+  ```js
+  {
+    "code": 0,
+    "uploads": {
+      "id": 1,
+      // 源文件名
+      "originalName": "avatar.jpg",
+      // 服务端文件名
+      "storedName": "20251102_1762050024918_1236.jpg",
+      // 服务端文件路径
+      "filePath": "/uploads/20251102_1762050024918_1236.jpg",
+      // 文件大小
+      "fileSize": 53886,
+      // 文件类型
+      "mimeType": "image/jpeg",
+      // 上传时间
+      "uploadTime": "2025/11/2 10:20:24"
+    }
+  }
+  ```
+
+
+
+#### 通过文件id删除上传记录
+只能删除自己的上传记录
+- `delete` /upload/:id
+- `header`
+  - Authorization `Bearer Token`
+
+- 添加成功行为
+  - 不删除文件
+  - 只删除数据
+  - 成功返回
+  ```js
+  {
+    "code": 0,
+    "message": "删除成功"
+  }
+  ```
+
+
 ### 用户接口 /user
 
 #### 用户信息
