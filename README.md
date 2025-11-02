@@ -7,8 +7,11 @@ nodejs版本要求：`18 < n`。
 
 1. **WS**：支持ws链接，实现广播/心跳检测/房间功能
 2. **Token鉴权**：内置Token鉴权，实现API权限拦截
-3. **模块化管理**：使用Router/Service/pepos分离管理
-4. **内置用户模块**：实现用户的增删改查
+3. **文件上传**：支持文件上传
+4. **邮件支持**：支持发送邮件，需配置邮箱
+5. **模块化管理**：使用Router/Service/pepos分离管理
+6. **内置用户模块**：实现用户的增删改查
+7. **内置验证码模块**：通过邮件模块发送验证码保存
 
 ## 启动服务
 `npm install` 初始化项目
@@ -61,6 +64,55 @@ userRouter.post(
   message: "内容"
 }
 ```
+
+### 发送邮件
+#### 全局配置
+如需使用该模块，请至 `/env` 文件中配置相关设置
+```bash
+## Email Configuration ##
+# SMTP 服务器配置
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_SECURE=false
+# 发件人邮箱和密码
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASS=your-app-password
+# 发件人显示名称
+EMAIL_FROM=MTExpress <your-email@gmail.com>
+```
+
+#### 发送验证码
+- `post` /verification/send
+- `body`
+  - email `string` `收件人`
+
+- 添加成功行为
+  - 验证码存储于 /repos/db 文件夹
+  - 成功返回
+  ```js
+  {
+    "code": 0,
+    "message": "验证码已发送，请查收邮件",
+    "email": "xx@xx.com"
+  }
+  ```
+
+#### 消费验证码
+验证邮箱 + 验证码是否匹配且未过期
+- `post` /verification/verify
+- `body`
+  - email `string` `收件人`
+  - code `string` `验证码`
+
+- 添加成功行为
+  - 移除验证码
+  - 成功返回
+  ```js
+  {
+    "valid": true,
+    "message": "验证成功"
+  }
+  ```
 
 ### 文件上传
 #### 上传单个文件

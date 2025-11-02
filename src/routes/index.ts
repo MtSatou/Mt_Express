@@ -2,8 +2,12 @@ import { Router } from 'express';
 import userRouter, { Base as UserBase } from './modules/user';
 import wsRouter, { Base as WsBase } from '../ws';
 import uploadRouter, { Base as UploadBase } from './modules/upload';
+import verificationRouter, { Base as VerificationBase } from './modules/verification';
 
 const apiRouter = Router();
+
+// 添加子服务 邮箱验证路由
+apiRouter.use(VerificationBase, verificationRouter);
 
 // 添加子服务 文件上传路由
 apiRouter.use(UploadBase, uploadRouter);
