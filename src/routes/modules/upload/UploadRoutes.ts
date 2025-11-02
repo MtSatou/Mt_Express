@@ -101,7 +101,7 @@ async function deleteUpload(req: Request, res: Response) {
 
   // 删除物理文件
   const fs = require('fs');
-  const filePath = path.join(__dirname, '../../../uploads', record.storedName);
+  const filePath = path.join(__dirname, '../uploads', record.storedName);
   if (fs.existsSync(filePath)) {
     fs.unlinkSync(filePath);
   }
