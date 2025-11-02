@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 
 // 上传文件存储目录
-const UPLOAD_DIR = path.join(__dirname, '../../../uploads');
+const UPLOAD_DIR = path.join(__dirname, '../../uploads');
 
 // 确保上传目录存在
 if (!fs.existsSync(UPLOAD_DIR)) {
