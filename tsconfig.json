@@ -71,7 +71,8 @@
       ],
       "@db/*": [
         "src/repos/db/*"
-      ]
+      ],
+      "ws": ["node_modules/ws"]
     },
     "useUnknownInCatchVariables": false
   },

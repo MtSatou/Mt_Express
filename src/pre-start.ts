@@ -8,12 +8,28 @@
 import path from 'path';
 import dotenv from 'dotenv';
 import { parse } from 'ts-command-line-args';
+import { validateLicense, getLicenseInfo } from './util/license';
 
 
 // **** Types **** //
 
 interface IArgs {
   env: string;
+}
+
+
+// **** License Validation **** //
+
+try {
+  validateLicense();
+  // eslint-disable-next-line no-console
+  console.log(getLicenseInfo());
+  // eslint-disable-next-line no-console
+} catch (error) {
+  // eslint-disable-next-line no-console
+  console.error(error instanceof Error ? error.message : String(error));
+  // eslint-disable-next-line no-process-exit
+  process.exit(1);
 }
 
 
