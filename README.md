@@ -3,29 +3,6 @@
 
 nodejs版本要求：`18 < n`。
 
-## ⚠️ 重要提示：运行许可验证
-
-本项目实施了**运行许可验证机制**。程序启动前会自动检查 `LICENSE` 文件：
-
-- **许可协议**: GNU General Public License v3.0 (GPL-3.0)
-- **项目仓库**: https://github.com/MtSatou/MTE
-- **作者**: MtSatou
-
-### 许可验证说明
-
-✅ **程序启动时会验证**:
-1. LICENSE 文件是否存在于项目根目录
-2. 文件内容是否包含 GPL 协议标识
-3. 文件内容是否包含项目仓库地址
-
-❌ **如果验证失败**:
-- 程序将显示详细错误信息并终止运行
-- 请从 [GitHub仓库](https://github.com/MtSatou/MTE) 获取完整的 LICENSE 文件
-
-📖 **详细说明**: 查看 [LICENSE_CHECK.md](./LICENSE_CHECK.md) 了解更多信息
-
-⚠️ **请勿删除或修改 LICENSE 文件**，否则程序将无法启动！
-
 ## 功能特性
 
 1. **WS**：支持ws链接，实现广播/心跳检测/房间功能
