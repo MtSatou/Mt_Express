@@ -1,13 +1,11 @@
 import { Router } from 'express';
-import jetValidator from 'jet-validator';
 import UserRoutes from './UserRoutes';
-import User from '@src/models/User';
 import auth from '@src/routes/middleware/auth';
+import { body, param } from 'express-validator';
 
 // 模块自身的基础路由（挂载点由 src/routes/index.ts 注册）
 export const Base = '/users';
 
-const validate = jetValidator();
 const userRouter = Router();
 
 /**
@@ -16,9 +14,9 @@ const userRouter = Router();
  */
 userRouter.post(
   '/register',
-  validate(['username', 'string']),
-  validate(['email', 'string']),
-  validate(['password', 'string']),
+  body('email').isString().notEmpty(),
+  body('username').isInt().notEmpty(),
+  body('password').isString().notEmpty(),
   UserRoutes.register,
 );
 
@@ -38,7 +36,7 @@ userRouter.put(
  */
 userRouter.delete(
   '/delete/:id',
-  validate(['id', 'number', 'params']),
+  param('id').isNumeric().notEmpty(),
   auth,
   UserRoutes.delete,
 );
@@ -49,8 +47,8 @@ userRouter.delete(
  */
 userRouter.post(
   '/login',
-  validate(['username', 'string']),
-  validate(['password', 'string']),
+  body('username').isString().notEmpty(),
+  body('password').isString().notEmpty(),
   UserRoutes.login,
 );
 

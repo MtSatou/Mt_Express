@@ -1,12 +1,12 @@
-import { Request, Response } from 'express';
 import HttpStatusCodes from '@src/constants/HttpStatusCodes';
 import UploadRepo from '@src/repos/modules/upload/UploadRepo';
 import path from 'path';
+import fs from 'fs';
 
 /** 上传文件：POST /upload  (multipart/form-data, field: file) */
-async function uploadFile(req: Request, res: Response) {
-  const auth = (res.locals as any).auth as { id?: number } | undefined;
-  const userId = Number(auth?.id);
+async function uploadFile(req: IReq, res: IRes) {
+  const auth = res.locals.auth;
+  const userId = Number(auth.id);
 
   if (!req.file) {
     return res.status(HttpStatusCodes.BAD_REQUEST).json({ message: '未上传文件' });
@@ -40,16 +40,16 @@ async function uploadFile(req: Request, res: Response) {
       mimeType: record.mimeType,
       uploadTime: record.uploadTime,
     });
-  } catch (e: any) {
-    return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({ 
-      message: e?.message || '上传失败' 
+  } catch (e) {
+    return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
+      message: String(e) || '上传失败',
     });
   }
 }
 
 /** 获取我的上传记录：GET /upload/list */
-async function getMyUploads(req: Request, res: Response) {
-  const auth = (res.locals as any).auth as { id?: number } | undefined;
+async function getMyUploads(req: IReq, res: IRes) {
+  const auth = res.locals.auth;
   const userId = Number(auth?.id);
 
   const uploads = await UploadRepo.getAllByUserId(userId);
@@ -57,9 +57,9 @@ async function getMyUploads(req: Request, res: Response) {
 }
 
 /** 获取单个上传记录：GET /upload/:id */
-async function getUploadById(req: Request, res: Response) {
-  const auth = (res.locals as any).auth as { id?: number } | undefined;
-  const userId = Number(auth?.id);
+async function getUploadById(req: IReq, res: IRes) {
+  const auth = res.locals.auth;
+  const userId = auth.id;
   const id = Number(req.params.id);
 
   if (!id) {
@@ -80,9 +80,9 @@ async function getUploadById(req: Request, res: Response) {
 }
 
 /** 删除上传记录及文件：DELETE /upload/:id */
-async function deleteUpload(req: Request, res: Response) {
-  const auth = (res.locals as any).auth as { id?: number } | undefined;
-  const userId = Number(auth?.id);
+async function deleteUpload(req: IReq, res: IRes) {
+  const auth = res.locals.auth;
+  const userId = auth.id;
   const id = Number(req.params.id);
 
   if (!id) {
@@ -100,7 +100,6 @@ async function deleteUpload(req: Request, res: Response) {
   }
 
   // 删除物理文件
-  const fs = require('fs');
   const filePath = path.join(__dirname, '../uploads', record.storedName);
   if (fs.existsSync(filePath)) {
     fs.unlinkSync(filePath);
@@ -108,7 +107,7 @@ async function deleteUpload(req: Request, res: Response) {
 
   // 删除数据库记录
   const ok = await UploadRepo.deleteById(id);
-  return res.status(ok ? HttpStatusCodes.OK : HttpStatusCodes.NOT_FOUND).json({ 
+  return res.status(ok ? HttpStatusCodes.OK : HttpStatusCodes.NOT_FOUND).json({
     message: ok ? '删除成功' : '删除失败',
   });
 }

@@ -3,3 +3,5 @@ dist/
 **/**/*.log
 
 package-lock.json
+/uploads
+/repos/db

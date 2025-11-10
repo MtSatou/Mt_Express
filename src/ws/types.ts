@@ -8,7 +8,7 @@ export interface ExtendedWebSocket extends WebSocket {
   isAlive: boolean;              // 心跳检测标记
   userId?: string | number;      // 用户 ID（可选）
   rooms: Set<string>;            // 加入的房间列表
-  metadata?: Record<string, any>; // 自定义元数据
+  metadata?: Record<string, unknown>; // 自定义元数据
   lastPing?: number;             // 最后一次 ping 时间
   connectedAt: number;           // 连接时间戳
 }
@@ -32,8 +32,8 @@ export enum MessageType {
  * 标准消息格式
  */
 export interface WSMessage {
-  type: MessageType | string;
-  data?: any;
+  type: MessageType;
+  data?: Record<string, unknown>;
   room?: string;
   timestamp?: string;
   from?: string;

@@ -32,16 +32,15 @@ function new_(
 /**
  * 通过一个符合用户的字段生成一个新用户
  */
-async function newUser(param: object): Promise<IUser> {
+async function newUser(param: IUser): Promise<IUser> {
   const allUsers = await UserPepo.getAll();
-  console.log(allUsers, "????")
   // 用户id由这里设置，未设置锁，异步时可能会重复id。后续添加队列解决
   const id = 10000 + allUsers.length;
-  (param as any).id = id;
+  param.id = id;
   if (!isUser(param)) {
     throw new Error(INVALID_CONSTRUCTOR_PARAM);
   }
-  const p = param as IUser;
+  const p = param;
   return new_(p.id, p.username, p.email, p.password, p.avatar, p.code);
 }
 
@@ -52,10 +51,10 @@ function isUser(arg: unknown): boolean {
   return (
     !!arg &&
     typeof arg === 'object' &&
-  'id' in arg && typeof (arg as any).id === 'number' &&
-  'email' in arg && typeof (arg as any).email === 'string' &&
-  'username' in arg && typeof (arg as any).username === 'string' &&
-  'password' in arg && typeof (arg as any).password === 'string'
+    'id' in arg && typeof arg.id === 'number' &&
+    'email' in arg && typeof arg.email === 'string' &&
+    'username' in arg && typeof arg.username === 'string' &&
+    'password' in arg && typeof arg.password === 'string'
   );
 }
 

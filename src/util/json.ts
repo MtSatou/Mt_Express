@@ -6,7 +6,7 @@ export function stringToJson<T>(str: string): T | null {
   }
 }
 
-export function jsonToString(obj: any): string {
+export function jsonToString<T>(obj: T): string {
   try {
     return JSON.stringify(obj);
   } catch (error) {

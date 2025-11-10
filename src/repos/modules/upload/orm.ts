@@ -13,9 +13,9 @@ interface IUploadDb {
 async function openDb(): Promise<IUploadDb> {
   const fp = path.join(__dirname, UPLOAD_DB_FILE);
   await ensureJsonFile(fp, { uploads: [] });
-  const db: any = await jsonfile.readFile(fp);
+  const db = await jsonfile.readFile(fp) as IUploadDb;
   if (!db.uploads) db.uploads = [];
-  return db as IUploadDb;
+  return db;
 }
 
 /** 写入上传记录 json */

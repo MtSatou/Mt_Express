@@ -42,14 +42,14 @@ async function updateOne(actorId: number, partial: Partial<IUser>): Promise<void
   }
 
   // 检查 username/email 唯一性（若有变更）
-  if ((partial as any).username && (partial as any).username !== exists.username) {
-    const other = await UserRepo.getByUsername((partial as any).username);
+  if (partial.username && partial.username !== exists.username) {
+    const other = await UserRepo.getByUsername(partial.username);
     if (other && other.id !== actorId) {
       throw new RouteError(HttpStatusCodes.BAD_REQUEST, '用户名已存在');
     }
   }
-  if ((partial as any).email && (partial as any).email !== exists.email) {
-    const other = await UserRepo.getOne((partial as any).email);
+  if (partial.email && partial.email !== exists.email) {
+    const other = await UserRepo.getOne(partial.email);
     if (other && other.id !== actorId) {
       throw new RouteError(HttpStatusCodes.BAD_REQUEST, '邮箱已存在');
     }
@@ -57,10 +57,10 @@ async function updateOne(actorId: number, partial: Partial<IUser>): Promise<void
 
   const updatedUser: IUser = {
     ...exists,
-    username: (partial as any).username ?? exists.username,
-    email: (partial as any).email ?? exists.email,
-    password: (partial as any).password ?? exists.password,
-    avatar: (partial as any).avatar ?? exists.avatar,
+    username: partial.username ?? exists.username,
+    email: partial.email ?? exists.email,
+    password: partial.password ?? exists.password,
+    avatar: partial.avatar ?? exists.avatar,
     updated: new Date().toLocaleString(),
   } as IUser;
 
@@ -83,7 +83,7 @@ async function login(username: string, password: string) {
   if (!user) {
     throw new RouteError(HttpStatusCodes.FORBIDDEN, '用户名或密码错误');
   }
-  if ((user as any).password !== password) {
+  if (user.password !== password) {
     throw new RouteError(HttpStatusCodes.FORBIDDEN, '用户名或密码错误');
   }
   const expMs = Number(EnvVars.Jwt.Exp ?? process.env.COOKIE_EXP ?? 0) || (2 * 60 * 60 * 1000);

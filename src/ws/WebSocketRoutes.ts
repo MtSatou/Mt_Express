@@ -1,18 +1,18 @@
+/* eslint-disable indent */
 import WebSocket from 'ws';
 import logger from 'jet-logger';
 import HttpStatusCodes from '@src/constants/HttpStatusCodes';
-import { IReq, IRes } from '@src/routes/types/express/misc';
 import { stringToJson } from '@src/util/json';
 import { v4 as uuidv4 } from 'uuid';
 import ConnectionManager from './ConnectionManager';
 import { ExtendedWebSocket, MessageType, WSMessage } from './types';
+import type { IncomingMessage } from 'http';
 
 /**
  * 获取 WebSocket 连接状态和统计信息
  */
-async function getStatus(_: IReq, res: IRes) {
+function getStatus(_: IReq, res: IRes) {
   const stats = ConnectionManager.getStats();
-  
   return res.status(HttpStatusCodes.OK).json({
     ...stats,
     message: 'WebSocket 服务运行中',
@@ -22,7 +22,8 @@ async function getStatus(_: IReq, res: IRes) {
 /**
  * WebSocket 消息处理器
  */
-function handleConnection(ws: WebSocket, req: any) {
+function handleConnection(ws: WebSocket, req: IncomingMessage) {
+  console.log(req);
   // 扩展 WebSocket 对象
   const extWs = ws as ExtendedWebSocket;
   extWs.id = uuidv4();
@@ -48,12 +49,12 @@ function handleConnection(ws: WebSocket, req: any) {
   // 接收消息
   extWs.on('message', (data: WebSocket.Data) => {
     try {
-      const message = data.toString();
+      const message = String(data);
       logger.info(`收到消息 [${extWs.id}]: ${message}`);
 
       // 解析JSON消息
       const parsed = stringToJson(message) as WSMessage;
-      
+
       // 处理不同类型的消息
       handleMessage(extWs.id, parsed);
     } catch (error) {
@@ -126,7 +127,7 @@ function handleMessage(clientId: string, message: WSMessage): void {
       }
       break;
 
-    case MessageType.BROADCAST:
+    case MessageType.BROADCAST: {
       // 广播消息（需要权限控制）
       const count = ConnectionManager.broadcast(
         {
@@ -138,12 +139,13 @@ function handleMessage(clientId: string, message: WSMessage): void {
       );
       logger.info(`广播消息已发送，接收者: ${count}`);
       break;
+    }
 
     case MessageType.MESSAGE:
     default:
       // 默认回显消息
       ConnectionManager.sendToClient(clientId, {
-        type: 'echo',
+        type: MessageType.MESSAGE,
         data: message.data,
       });
       break;
@@ -153,10 +155,10 @@ function handleMessage(clientId: string, message: WSMessage): void {
 /**
  * 广播消息给所有连接的客户端
  */
-function broadcast(wss: WebSocket.Server, message: any) {
+function broadcast(wss: WebSocket.Server, message: WSMessage) {
   ConnectionManager.broadcast({
+    ...message,
     type: MessageType.BROADCAST,
-    data: message,
   });
 }
 

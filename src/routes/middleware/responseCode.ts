@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction } from 'express';
 
 /**
  * 全局响应包装中间件：拦截 res.json，将响应体按统一协议返回。
@@ -20,21 +20,25 @@ import { Request, Response, NextFunction } from 'express';
  * - 如果原始 body 是数组或原始值，则包装为 { code, data: body }
  * - 如果原始响应已包含 code 字段，则保留原样，不覆盖
  */
-export default function responseCodeMiddleware(req: Request, res: Response, next: NextFunction) {
-  const originalJson = res.json.bind(res) as (body?: any) => Response;
+export default function responseCodeMiddleware(req: IReq, res: IRes, next: NextFunction) {
+  const originalJson = res.json.bind(res) as (body?: unknown) => IRes;
 
-  (res as any).json = function (body?: any) {
+  res.json = function (body?: unknown) {
     try {
       // If body is null/undefined -> wrap into data: null
       if (body === undefined || body === null) {
-        const status = (res.statusCode || 200) as number;
+        const status = (res.statusCode || 200);
         const code = status >= 200 && status < 300 ? 0 : status;
         return originalJson({ code, data: null });
       }
 
       // If body is an object but NOT an Array and doesn't already have code, spread it
-      if (typeof body === 'object' && !Array.isArray(body) && !Object.prototype.hasOwnProperty.call(body, 'code')) {
-        const status = (res.statusCode || 200) as number;
+      if (
+        typeof body === 'object' &&
+        !Array.isArray(body) &&
+        !Object.prototype.hasOwnProperty.call(body, 'code')
+      ) {
+        const status = res.statusCode || 200;
         // 成功 -> 统一 code 0；失败 -> code = status
         const code = status >= 200 && status < 300 ? 0 : status;
         // 若成功则强制响应 HTTP 200（业务要求：成功全部返回 200）
@@ -47,7 +51,7 @@ export default function responseCodeMiddleware(req: Request, res: Response, next
 
       // For arrays or primitive values, wrap under data
       if (!Object.prototype.hasOwnProperty.call(body, 'code')) {
-        const status = (res.statusCode || 200) as number;
+        const status = res.statusCode || 200;
         const code = status >= 200 && status < 300 ? 0 : status;
         if (status >= 200 && status < 300) {
           res.status(200);
@@ -58,7 +62,7 @@ export default function responseCodeMiddleware(req: Request, res: Response, next
       return originalJson(body);
     }
     return originalJson(body);
-  } as any;
+  };
 
   return next();
 }

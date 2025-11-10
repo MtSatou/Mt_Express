@@ -80,11 +80,11 @@ async function update(user: IUser): Promise<void> {
       const dbUser = db.users[i];
       db.users[i] = {
         ...dbUser,
-        username: (user as any).username ?? dbUser.username,
+        username: user.username ?? dbUser.username,
         email: user.email,
-        password: (user as any).password ?? dbUser.password,
-        avatar: (user as any).avatar ?? dbUser.avatar,
-        updated: (user as any).updated ?? new Date().toLocaleString(),
+        password: user.password ?? dbUser.password,
+        avatar: user.avatar ?? dbUser.avatar,
+        updated: user.updated ?? new Date().toLocaleString(),
       } as IUser;
       return orm.saveDb(db);
     }
@@ -94,7 +94,11 @@ async function update(user: IUser): Promise<void> {
 /**
  * 设置用户当前有效 token 与到期时间（毫秒）
  */
-async function setToken(id: number, token: string | null, tokenExpiresAt: number | null): Promise<void> {
+async function setToken(
+  id: number,
+  token: string | null,
+  tokenExpiresAt: number | null,
+): Promise<void> {
   const db = await orm.openDb();
   for (let i = 0; i < db.users.length; i++) {
     if (db.users[i].id === id) {
@@ -103,7 +107,7 @@ async function setToken(id: number, token: string | null, tokenExpiresAt: number
         ...dbUser,
         token,
         tokenExpiresAt,
-      } as any;
+      };
       return orm.saveDb(db);
     }
   }

@@ -34,7 +34,7 @@ const storage = multer.diskStorage({
 });
 
 // 文件过滤器（可选：限制文件类型）
-const fileFilter = (req: any, file: any, cb: any) => {
+const fileFilter: multer.Options['fileFilter'] = (req, file, cb) => {
   // 这里可以添加文件类型验证
   // 例如：只允许图片
   // const allowedMimes = ['image/jpeg', 'image/png', 'image/gif'];
@@ -43,7 +43,7 @@ const fileFilter = (req: any, file: any, cb: any) => {
   // } else {
   //   cb(new Error('不支持的文件类型'), false);
   // }
-  
+
   // 目前允许所有类型
   cb(null, true);
 };

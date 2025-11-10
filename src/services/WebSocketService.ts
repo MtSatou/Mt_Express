@@ -1,26 +1,27 @@
 import WebSocket from 'ws';
 import { Server as HTTPServer } from 'http';
 import logger from 'jet-logger';
-import { WebSocketRoutes } from '@src/ws';
+import { WebSocketRoutes, WSMessage } from '@src/ws';
+import type { IncomingMessage } from 'http';
 
 /**
  * WebSocket 服务类
  */
 class WebSocketService {
   private wss: WebSocket.Server | null = null;
-  
+
   /**
    * 初始化 WebSocket 服务器
    * @param server HTTP 服务器实例
    * @param path WebSocket 路径，默认为 '/ws'
    */
   initialize(server: HTTPServer, path: string = '/ws') {
-    this.wss = new WebSocket.Server({ 
+    this.wss = new WebSocket.Server({
       server,
       path,
     });
 
-    this.wss.on('connection', (ws: WebSocket, req: any) => {
+    this.wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
       WebSocketRoutes.handleConnection(ws, req);
     });
 
@@ -44,7 +45,7 @@ class WebSocketService {
   /**
    * 广播消息给所有客户端
    */
-  broadcast(message: any): void {
+  broadcast(message: WSMessage): void {
     if (this.wss) {
       WebSocketRoutes.broadcast(this.wss, message);
     }

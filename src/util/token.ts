@@ -4,9 +4,9 @@ import EnvVars from '@src/constants/EnvVars';
 const SECRET = EnvVars.Jwt.Secret || (process.env.JWT_SECRET ?? 'dev-secret');
 
 export interface TokenPayload {
-  id: number | string;
+  id: number;
   email?: string;
-  [k: string]: any;
+  [k: string]: unknown;
 }
 
 /** 将过期时间统一从 EnvVars 获取（ms）并转换为 seconds 传给 jsonwebtoken */
@@ -23,12 +23,12 @@ function defaultExpirySeconds(): number {
 export function signToken(payload: TokenPayload, expiresSeconds?: number) {
   const expiresIn = expiresSeconds ?? defaultExpirySeconds();
   // 使用 any 以兼容当前 jsonwebtoken 类型声明
-  return jwt.sign(payload as any, SECRET as any, { expiresIn: expiresIn as any } as any) as string;
+  return jwt.sign(payload, SECRET, { expiresIn: expiresIn });
 }
 
 /** 校验 token，成功返回 payload，否则抛错 */
 export function verifyToken(token: string): TokenPayload {
-  const decoded = jwt.verify(token, SECRET as any) as any;
+  const decoded = jwt.verify(token, SECRET);
   return decoded as TokenPayload;
 }
 

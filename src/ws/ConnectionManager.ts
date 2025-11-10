@@ -11,7 +11,7 @@ class ConnectionManager {
   private rooms: Map<string, Set<string>> = new Map();
   private heartbeatInterval: NodeJS.Timeout | null = null;
   private startTime: number = Date.now();
-  
+
   // 配置项
   private readonly HEARTBEAT_INTERVAL = 30000; // 30秒
   private readonly HEARTBEAT_TIMEOUT = 35000;  // 35秒超时
@@ -77,7 +77,7 @@ class ConnectionManager {
    */
   addClient(ws: ExtendedWebSocket): void {
     this.clients.set(ws.id, ws);
-    
+
     // 设置 pong 响应处理
     ws.on('pong', () => {
       ws.isAlive = true;
@@ -96,7 +96,7 @@ class ConnectionManager {
       ws.rooms.forEach(room => {
         this.leaveRoom(clientId, room);
       });
-      
+
       this.clients.delete(clientId);
       logger.info(`连接已移除: ${clientId}，当前连接数: ${this.clients.size}`);
     }
@@ -135,7 +135,7 @@ class ConnectionManager {
     this.rooms.get(roomId)!.add(clientId);
 
     logger.info(`客户端 ${clientId} 加入房间 ${roomId}`);
-    
+
     // 通知客户端加入成功
     this.sendToClient(clientId, {
       type: MessageType.SYSTEM,
@@ -162,7 +162,7 @@ class ConnectionManager {
     const room = this.rooms.get(roomId);
     if (room) {
       room.delete(clientId);
-      
+
       // 如果房间为空，删除房间
       if (room.size === 0) {
         this.rooms.delete(roomId);
@@ -171,7 +171,7 @@ class ConnectionManager {
     }
 
     logger.info(`客户端 ${clientId} 离开房间 ${roomId}`);
-    
+
     // 通知客户端离开成功
     this.sendToClient(clientId, {
       type: MessageType.SYSTEM,
@@ -250,7 +250,7 @@ class ConnectionManager {
    */
   broadcastWhere(
     predicate: (ws: ExtendedWebSocket) => boolean,
-    message: WSMessage
+    message: WSMessage,
   ): number {
     let count = 0;
 
@@ -319,14 +319,15 @@ class ConnectionManager {
    */
   cleanup(): void {
     this.stopHeartbeat();
-    
+
     this.clients.forEach((ws, id) => {
+      console.log(`关闭连接: ${id}`);
       ws.close(1000, '服务器关闭');
     });
 
     this.clients.clear();
     this.rooms.clear();
-    
+
     logger.info('连接管理器已清理');
   }
 }
