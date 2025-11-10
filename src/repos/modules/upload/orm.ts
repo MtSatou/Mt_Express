@@ -3,7 +3,7 @@ import path from 'path';
 import { writeJsonSafe, ensureJsonFile } from '@src/util/fs';
 import { IUploadedFile } from '@src/types/upload';
 
-const UPLOAD_DB_FILE = '../../db/uploads.json';
+const UPLOAD_DB_FILE = 'db/uploads.json';
 
 interface IUploadDb {
   uploads: IUploadedFile[];

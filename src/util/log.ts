@@ -1,9 +1,15 @@
 import pino from 'pino';
-export const logger = pino({
-  level: 'info',
-  transport: { target: 'pino-pretty', options: { colorize: true, translateTime: 'SYS:standard' } },
-  redact: ['req.headers.authorization', 'password'],
+import pretty from 'pino-pretty';
+
+const prettyStream = pretty({
+  colorize: true,
+  translateTime: 'SYS:standard',
 });
+
+export const logger = pino(
+  { level: 'info', redact: ['req.headers.authorization', 'password'] },
+  prettyStream,
+);
 
 export default {
   info: (msg: string) => logger.info({}, msg),

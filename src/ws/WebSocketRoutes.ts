@@ -1,5 +1,5 @@
 /* eslint-disable indent */
-import WebSocket from 'ws';
+import WebSocket, { WebSocketServer, RawData } from 'ws';
 import logger from '@src/util/log';
 import HttpStatusCodes from '@src/constants/HttpStatusCodes';
 import { stringToJson } from '@src/util/json';
@@ -47,7 +47,7 @@ function handleConnection(ws: WebSocket, req: IncomingMessage) {
   logger.info(`新的 WebSocket 连接: ${extWs.id}`);
 
   // 接收消息
-  extWs.on('message', (data: WebSocket.Data) => {
+  extWs.on('message', (data: RawData) => {
     try {
       const message = String(data);
       logger.info(`收到消息 [${extWs.id}]: ${message}`);
@@ -155,7 +155,7 @@ function handleMessage(clientId: string, message: WSMessage): void {
 /**
  * 广播消息给所有连接的客户端
  */
-function broadcast(wss: WebSocket.Server, message: WSMessage) {
+function broadcast(wss: WebSocketServer, message: WSMessage) {
   ConnectionManager.broadcast({
     ...message,
     type: MessageType.BROADCAST,

@@ -3,7 +3,7 @@ import path from 'path';
 import { writeJsonSafe, ensureJsonFile } from '@src/util/fs';
 import { IVerificationCode } from '@src/types/verification';
 
-const VERIFICATION_DB_FILE = '../../db/verifications.json';
+const VERIFICATION_DB_FILE = 'db/verifications.json';
 
 interface IVerificationDb {
   codes: IVerificationCode[];
@@ -13,9 +13,9 @@ interface IVerificationDb {
 async function openDb(): Promise<IVerificationDb> {
   const fp = path.join(__dirname, VERIFICATION_DB_FILE);
   await ensureJsonFile(fp, { codes: [] });
-  const db: any = await jsonfile.readFile(fp);
+  const db = await jsonfile.readFile(fp) as IVerificationDb;
   if (!db.codes) db.codes = [];
-  return db as IVerificationDb;
+  return db;
 }
 
 /** 写入验证码记录 json */

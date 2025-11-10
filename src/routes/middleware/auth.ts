@@ -23,7 +23,6 @@ export default async function auth(
 
   try {
     const payload = TokenUtil.verifyToken(token);
-    console.log(payload, 'payloadpayloadpayloadpayloadpayload');
     // 校验签名与过期通过后，再比对持久化的 token（用于在刷新后废弃旧 token）
     const user = await UserRepo.getById(payload.id);
     if (!user) {

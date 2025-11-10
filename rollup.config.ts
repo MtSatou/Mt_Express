@@ -7,11 +7,19 @@ import copy from 'rollup-plugin-copy';
 
 export default {
   input: './src/index.ts',
+  // 多文件打包
+  // output: {
+  //   dir: './dist',
+  //   format: 'cjs',
+  //   sourcemap: false,
+  //   preserveModules: true,
+  // },
+  // 单文件打包
   output: {
-    dir: './dist',
+    file: './dist/src/index.js',
     format: 'cjs',
     sourcemap: false,
-    preserveModules: true,
+    inlineDynamicImports: true,
   },
   plugins: [
     resolve({
@@ -52,7 +60,7 @@ export default {
       copyOnce: false,
       verbose: true,
       targets: [
-        { src: 'src/env/**/*', dest: 'dist/env' },
+        { src: 'src/env/**/*', dest: 'dist/src/env' },
         { src: 'LICENSE', dest: 'dist' },
       ],
     }),

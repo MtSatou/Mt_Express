@@ -1,4 +1,4 @@
-import WebSocket from 'ws';
+import WebSocket, { WebSocketServer } from 'ws';
 import { Server as HTTPServer } from 'http';
 import logger from '@src/util/log';
 import WebSocketRoutes from './WebSocketRoutes';
@@ -6,11 +6,12 @@ import ConnectionManager from './ConnectionManager';
 import { MessageType, WSMessage } from './types';
 import type { IncomingMessage } from 'http';
 import { ExtendedWebSocket } from './types';
+
 /**
  * WebSocket 服务类
  */
 class WebSocketService {
-  private wss: WebSocket.Server | null = null;
+  private wss: WebSocketServer | null = null;
 
   /**
    * 初始化 WebSocket 服务器
@@ -18,7 +19,7 @@ class WebSocketService {
    * @param path WebSocket 路径，默认为 '/ws'
    */
   initialize(server: HTTPServer, path: string = '/ws') {
-    this.wss = new WebSocket.Server({
+    this.wss = new WebSocketServer({
       server,
       path,
     });
@@ -34,7 +35,7 @@ class WebSocketService {
   /**
    * 获取 WebSocket 服务器实例
    */
-  getServer(): WebSocket.Server | null {
+  getServer(): WebSocketServer | null {
     return this.wss;
   }
 

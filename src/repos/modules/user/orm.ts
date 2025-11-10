@@ -3,7 +3,7 @@ import { IUser } from '@src/types/user';
 import { writeJsonSafe, ensureJsonFile } from '@src/util/fs';
 import path from 'path';
 
-const DB_FILE_NAME = '../../db/database.json';
+const DB_FILE_NAME = 'db/database.json';
 
 // **** Types **** //
 interface IDb {
