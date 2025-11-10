@@ -1,6 +1,6 @@
 /* eslint-disable indent */
 import WebSocket from 'ws';
-import logger from 'jet-logger';
+import logger from '@src/util/log';
 import HttpStatusCodes from '@src/constants/HttpStatusCodes';
 import { stringToJson } from '@src/util/json';
 import { v4 as uuidv4 } from 'uuid';
@@ -58,7 +58,7 @@ function handleConnection(ws: WebSocket, req: IncomingMessage) {
       // 处理不同类型的消息
       handleMessage(extWs.id, parsed);
     } catch (error) {
-      logger.err(error as Error);
+      logger.error(error as Error);
       ConnectionManager.sendToClient(extWs.id, {
         type: MessageType.ERROR,
         data: { message: '消息格式错误，需要 JSON 格式' },
@@ -79,7 +79,7 @@ function handleConnection(ws: WebSocket, req: IncomingMessage) {
 
   // 处理错误
   extWs.on('error', (error: Error) => {
-    logger.err(error);
+    logger.error(error);
     ConnectionManager.removeClient(extWs.id);
   });
 }

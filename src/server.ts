@@ -7,7 +7,7 @@ import morgan from 'morgan';
 import path from 'path';
 import helmet from 'helmet';
 import express, { Request, Response, NextFunction } from 'express';
-import logger from 'jet-logger';
+import logger from '@src/util/log';
 
 import 'express-async-errors';
 
@@ -23,7 +23,7 @@ const app = express();
 
 // 添加中间件
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(EnvVars.CookieProps.Secret));
 
 // 全局响应包装（在路由注册之前生效）
@@ -51,7 +51,7 @@ app.use((
   next: NextFunction,
 ) => {
   if (EnvVars.NodeEnv !== NodeEnvs.Test.valueOf()) {
-    logger.err(err, true);
+    logger.error(err);
   }
   let status = HttpStatusCodes.BAD_REQUEST;
   if (err instanceof RouteError) {

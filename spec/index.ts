@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import find from 'find';
 import Jasmine from 'jasmine';
 import { parse } from 'ts-command-line-args';
-import logger from 'jet-logger';
+import logger from '@src/util/log';
 
 
 // **** Types **** //
@@ -57,7 +57,7 @@ if (args.testFile) {
     if (files.length === 1) {
       jasmine.execute([files[0]]);
     } else {
-      logger.err('Test file not found!');
+      logger.error('Test file not found!');
     }
   });
 } else {
@@ -71,7 +71,7 @@ if (args.testFile) {
     if (info.overallStatus === 'passed') {
       logger.info('All tests have passed :)');
     } else {
-      logger.err('At least one test has failed :(');
+      logger.error('At least one test has failed :(');
     }
   }
 })();

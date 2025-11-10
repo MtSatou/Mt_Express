@@ -1,5 +1,5 @@
 import WebSocket from 'ws';
-import logger from 'jet-logger';
+import logger from '@src/util/log';
 import { ExtendedWebSocket, MessageType, WSMessage, ConnectionStats } from './types';
 
 /**
@@ -199,7 +199,7 @@ class ConnectionManager {
       ws.send(data);
       return true;
     } catch (error) {
-      logger.err(error as Error);
+      logger.error(error as Error);
       return false;
     }
   }

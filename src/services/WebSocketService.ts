@@ -1,6 +1,6 @@
 import WebSocket from 'ws';
 import { Server as HTTPServer } from 'http';
-import logger from 'jet-logger';
+import logger from '@src/util/log';
 import { WebSocketRoutes, WSMessage } from '@src/ws';
 import type { IncomingMessage } from 'http';
 
