@@ -5,10 +5,10 @@
     "build": "rollup -c",
     "lint": "npx eslint --ext .ts src/",
     "lint:tests": "npx eslint --ext .ts spec/",
-    "start": "node -r module-alias/register ./dist --env=production",
-    "dev": "nodemon",
-    "test": "nodemon --config ./spec/nodemon.json",
-    "test:no-reloading": "npx ts-node --files -r tsconfig-paths/register ./spec"
+    "start": "cross-env NODE_ENV=production node -r module-alias/register ./dist",
+    "dev": "cross-env NODE_ENV=development nodemon",
+    "test": "cross-env NODE_ENV=test nodemon --config ./spec/nodemon.json",
+    "test:no-reloading": "cross-env NODE_ENV=test npx ts-node --files -r tsconfig-paths/register ./spec"
   },
   "nodemonConfig": {
     "watch": [
@@ -18,7 +18,10 @@
     "ignore": [
       "src/public"
     ],
-    "exec": "ts-node --files -r tsconfig-paths/register ./src"
+    "exec": "cross-env NODE_ENV=development ts-node --files -r tsconfig-paths/register ./src",
+    "env": {
+      "NODE_ENV": "development"
+    }
   },
   "_moduleAliases": {
     "@src": "dist"
@@ -69,6 +72,7 @@
     "@types/supertest": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^7.9.0",
     "@typescript-eslint/parser": "^7.9.0",
+    "cross-env": "^10.1.0",
     "eslint": "^8.57.0",
     "eslint-plugin-node": "^11.1.0",
     "find": "^0.3.0",

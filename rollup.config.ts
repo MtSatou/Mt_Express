@@ -60,7 +60,7 @@ export default {
       copyOnce: false,
       verbose: true,
       targets: [
-        { src: 'src/env/**/*', dest: 'dist/src/env' },
+        { src: 'src/env/**/.env*', dest: 'dist/src/env' },
         { src: 'LICENSE', dest: 'dist' },
       ],
     }),
