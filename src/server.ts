@@ -9,6 +9,7 @@ import helmet from 'helmet';
 import express, { Request, Response, NextFunction } from 'express';
 import logger from '@src/util/log';
 import { isDev } from '@src/util/baseUrl';
+import { globalLimiter } from '@src/util/rate-limit';
 
 import 'express-async-errors';
 
@@ -21,11 +22,13 @@ import { NodeEnvs } from '@src/constants/misc';
 import { RouteError } from '@src/other/classes';
 
 const app = express();
+app.set('trust proxy', 1);
 
 // 添加中间件
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(EnvVars.CookieProps.Secret));
+app.use(globalLimiter);
 
 // 全局响应包装（在路由注册之前生效）
 app.use(responseCode);
