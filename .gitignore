@@ -4,4 +4,4 @@ dist/
 
 package-lock.json
 /uploads
-/repos/db
+db/**.json

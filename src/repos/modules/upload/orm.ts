@@ -1,9 +1,10 @@
 import jsonfile from 'jsonfile';
 import path from 'path';
+import baseUrl from '@src/util/baseUrl';
 import { writeJsonSafe, ensureJsonFile } from '@src/util/fs';
 import { IUploadedFile } from '@src/types/upload';
 
-const UPLOAD_DB_FILE = 'db/uploads.json';
+const UPLOAD_DB_FILE = baseUrl + 'db/uploads.json';
 
 interface IUploadDb {
   uploads: IUploadedFile[];

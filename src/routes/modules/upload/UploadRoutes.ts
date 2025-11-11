@@ -2,6 +2,7 @@ import HttpStatusCodes from '@src/constants/HttpStatusCodes';
 import UploadRepo from '@src/repos/modules/upload/UploadRepo';
 import path from 'path';
 import fs from 'fs';
+import baseUrl from '@src/util/baseUrl';
 
 /** 上传文件：POST /upload  (multipart/form-data, field: file) */
 async function uploadFile(req: IReq, res: IRes) {
@@ -100,7 +101,7 @@ async function deleteUpload(req: IReq, res: IRes) {
   }
 
   // 删除物理文件
-  const filePath = path.join(__dirname, '../uploads', record.storedName);
+  const filePath = path.join(__dirname, baseUrl + 'uploads', record.storedName);
   if (fs.existsSync(filePath)) {
     fs.unlinkSync(filePath);
   }

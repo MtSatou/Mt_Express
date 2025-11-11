@@ -1,9 +1,10 @@
 import jsonfile from 'jsonfile';
 import { IUser } from '@src/types/user';
 import { writeJsonSafe, ensureJsonFile } from '@src/util/fs';
+import baseUrl from '@src/util/baseUrl';
 import path from 'path';
 
-const DB_FILE_NAME = 'db/database.json';
+const DB_FILE_NAME = baseUrl + 'db/database.json';
 
 // **** Types **** //
 interface IDb {

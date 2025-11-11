@@ -1,9 +1,10 @@
 import jsonfile from 'jsonfile';
 import path from 'path';
+import baseUrl from '@src/util/baseUrl';
 import { writeJsonSafe, ensureJsonFile } from '@src/util/fs';
 import { IVerificationCode } from '@src/types/verification';
 
-const VERIFICATION_DB_FILE = 'db/verifications.json';
+const VERIFICATION_DB_FILE = baseUrl + 'db/verifications.json';
 
 interface IVerificationDb {
   codes: IVerificationCode[];

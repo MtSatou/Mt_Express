@@ -8,6 +8,7 @@ import path from 'path';
 import helmet from 'helmet';
 import express, { Request, Response, NextFunction } from 'express';
 import logger from '@src/util/log';
+import { isDev } from '@src/util/baseUrl';
 
 import 'express-async-errors';
 
@@ -66,7 +67,7 @@ const staticDir = path.join(__dirname, 'public');
 app.use(express.static(staticDir));
 
 // 设置上传文件的静态访问目录
-const uploadsDir = path.join(__dirname, 'uploads');
+const uploadsDir = path.join(__dirname, isDev ? '../uploads' : 'uploads');
 app.use('/uploads', express.static(uploadsDir));
 
 // 访问 /重定向

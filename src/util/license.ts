@@ -5,14 +5,15 @@
 
 import fs from 'fs';
 import path from 'path';
+import { isDev } from '@src/util/baseUrl';
 
 /**
  * 验证许可证文件是否存在
  * @throws {Error} 如果许可证文件不存在
  */
 export function validateLicense(): void {
-  const licensePath = path.join(__dirname, '../../LICENSE');
-  
+  const licensePath = path.join(__dirname, isDev ? '../../LICENSE' : '../LICENSE');
+
   if (!fs.existsSync(licensePath)) {
     const errorMessage = `
 ========================================
@@ -34,14 +35,14 @@ https://github.com/MtSatou/MTE
   // 验证 LICENSE 文件内容是否包含必要信息
   try {
     const licenseContent = fs.readFileSync(licensePath, 'utf-8');
-    
+
     // 检查是否包含 GPL 协议标识
-    const hasGPL = licenseContent.includes('GNU GENERAL PUBLIC LICENSE') || 
-                   licenseContent.includes('GPL');
-    
+    const hasGPL = licenseContent.includes('GNU GENERAL PUBLIC LICENSE') ||
+      licenseContent.includes('GPL');
+
     // 检查是否包含仓库地址
     const hasRepo = licenseContent.includes('https://github.com/MtSatou/MTE');
-    
+
     if (!hasGPL || !hasRepo) {
       const errorMessage = `
 ========================================
